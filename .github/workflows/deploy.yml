@@ -1,0 +1,107 @@
+name: Deploy to GCP
+on:
+  push:
+    branches: [ develop, main ]
+
+# Required repository secrets (place values in GitHub repo Settings -> Secrets):
+# - GCP_PROJECT: your GCP project id
+# - WORKLOAD_IDENTITY_PROVIDER: the Workload Identity Provider resource string (projects/../locations/global/workloadIdentityPools/POOL/providers/PROVIDER)
+# - SERVICE_ACCOUNT_EMAIL: the service account email to impersonate (e.g. ci-cd-deployer@PROJECT.iam.gserviceaccount.com)
+# - ARTIFACT_REGISTRY_REPO: Artifact Registry repo name (e.g. cfap-repo)
+# - FIREBASE_TOKEN: (optional) token for firebase deploy
+
+env:
+  REGION: us-central1
+
+jobs:
+  deploy-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP using Workload Identity Federation
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+
+      - name: Setup gcloud CLI
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          export_default_credentials: true
+
+      - name: Configure Docker for Artifact Registry
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev -q
+
+      - name: Build and push backend Docker image
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REGISTRY_REPO }}
+        run: |
+          IMAGE_SHA=us-central1-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/cfap-backend:${GITHUB_SHA}
+          docker build -t ${IMAGE_SHA} -f backend/Dockerfile backend
+          docker push ${IMAGE_SHA}
+          # If this is the main branch, also tag as :production
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            IMAGE_PROD=us-central1-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/cfap-backend:production
+            docker tag ${IMAGE_SHA} ${IMAGE_PROD}
+            docker push ${IMAGE_PROD}
+          fi
+
+      - name: Deploy to Cloud Run
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+          REGION: ${{ env.REGION }}
+          SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+        run: |
+          # choose service name by branch
+          BRANCH=${{ github.ref_name }}
+          if [ "${BRANCH}" = "main" ]; then
+            SERVICE_NAME=cfap-backend-prod
+          else
+            SERVICE_NAME=cfap-backend-dev
+          fi
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${{ secrets.ARTIFACT_REGISTRY_REPO }}/cfap-backend:${GITHUB_SHA}
+          gcloud run deploy ${SERVICE_NAME} \
+            --image=${IMAGE} \
+            --region=${REGION} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --service-account=${SERVICE_ACCOUNT}
+
+  deploy-frontend:
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install and build frontend (if directory exists)
+        run: |
+          if [ -d frontend ]; then
+            cd frontend
+            npm ci
+            npm run build
+          else
+            echo "No frontend directory found, skipping frontend build"
+          fi
+
+      - name: Deploy to Firebase Hosting
+        if: ${{ secrets.FIREBASE_TOKEN != '' }}
+        env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_TOKEN }}
+        run: |
+          if [ -d frontend ]; then
+            npm i -g firebase-tools
+            cd frontend
+            firebase deploy --only hosting --token "$FIREBASE_TOKEN"
+          else
+            echo "No frontend to deploy"
+          fi

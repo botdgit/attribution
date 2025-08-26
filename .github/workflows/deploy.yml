@@ -105,3 +105,77 @@ jobs:
           else
             echo "No frontend to deploy"
           fi
+
+  deploy-ingestion:
+    name: Build & Deploy ingestion services
+    runs-on: ubuntu-latest
+    needs: deploy-backend
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Authenticate to GCP via Workload Identity Federation
+        uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+
+      - name: Configure gcloud
+        uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          export_default_credentials: true
+
+      - name: Configure Artifact Registry Docker authentication
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev -q
+
+      - name: Build and push ingestion-api image
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REGISTRY_REPO }}
+        run: |
+          IMAGE_SHA=us-central1-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/ingestion-api:${GITHUB_SHA}
+          docker build -t ${IMAGE_SHA} -f ingestion_api/Dockerfile ingestion_api
+          docker push ${IMAGE_SHA}
+
+      - name: Deploy ingestion-api to Cloud Run
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+          REGION: ${{ env.REGION }}
+          SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+        run: |
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${{ secrets.ARTIFACT_REGISTRY_REPO }}/ingestion-api:${GITHUB_SHA}
+          gcloud run deploy ingestion-api \
+            --image ${IMAGE} \
+            --region ${REGION} \
+            --platform managed \
+            --allow-unauthenticated \
+            --service-account=${SERVICE_ACCOUNT} \
+            --set-env-vars PUBSUB_TOPIC=raw-events,GCP_PROJECT=${PROJECT_ID}
+
+      - name: Build and push ingestion-subscriber image
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REGISTRY_REPO }}
+        run: |
+          IMAGE_SHA=us-central1-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/ingestion-subscriber:${GITHUB_SHA}
+          docker build -t ${IMAGE_SHA} -f ingestion_subscriber/Dockerfile ingestion_subscriber
+          docker push ${IMAGE_SHA}
+
+      - name: Deploy ingestion-subscriber to Cloud Run
+        env:
+          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+          REGION: ${{ env.REGION }}
+          SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+        run: |
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${{ secrets.ARTIFACT_REGISTRY_REPO }}/ingestion-subscriber:${GITHUB_SHA}
+          gcloud run deploy ingestion-subscriber \
+            --image ${IMAGE} \
+            --region ${REGION} \
+            --platform managed \
+            --allow-unauthenticated \
+            --service-account=${SERVICE_ACCOUNT} \
+            --set-env-vars TARGET_TABLE=${PROJECT_ID}:cfap_analytics.standard_events

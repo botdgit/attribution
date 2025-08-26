@@ -61,4 +61,50 @@ resource "google_storage_notification" "uploads_to_pubsub" {
   topic        = google_pubsub_topic.raw_events.id
 }
 
+# Bucket to store function source / staging
+resource "google_storage_bucket" "functions_source" {
+  name     = "${var.project_id}-cfap-functions"
+  project  = var.project_id
+  location = "US"
+  force_destroy = true
+}
+
+# Service account for Cloud Functions
+resource "google_service_account" "functions_sa" {
+  account_id   = "cfap-functions-sa"
+  display_name = "CFAP Cloud Functions service account"
+}
+
+# Cloud Function for CSV ingest (deployed from source in functions/*)
+resource "google_cloudfunctions_function" "csv_ingest" {
+  name        = "csv-ingest"
+  project     = var.project_id
+  region      = var.region
+  runtime     = "python312"
+  entry_point = "gcs_csv_to_bq"
+
+  # source archive should be uploaded to functions_source bucket prior to apply
+  source_archive_bucket = google_storage_bucket.functions_source.name
+  source_archive_object = "csv_ingest_source.zip"
+
+  event_trigger {
+    event_type = "google.storage.object.finalize"
+    resource   = google_storage_bucket.uploads_bucket.name
+  }
+
+  service_account_email = google_service_account.functions_sa.email
+
+  environment_variables = {
+    TARGET_TABLE = "${var.project_id}:cfap_analytics.standard_events"
+  }
+}
+
+# Grant BigQuery Data Editor to function SA
+resource "google_project_iam_member" "function_bq_insert" {
+  project = var.project_id
+  role    = "roles/bigquery.dataEditor"
+  member  = "serviceAccount:${google_service_account.functions_sa.email}"
+}
+
+
 

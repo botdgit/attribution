@@ -6,12 +6,15 @@ import logging
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field, validator
 from google.cloud import pubsub_v1
+from google.cloud import storage
+import uuid
 
 logger = logging.getLogger("ingestion_api")
 logger.setLevel(logging.INFO)
 
 PROJECT_ID = os.getenv("GCP_PROJECT") or os.getenv("GOOGLE_CLOUD_PROJECT")
 PUBSUB_TOPIC = os.getenv("PUBSUB_TOPIC", "raw-events")
+UPLOADS_BUCKET = os.getenv("UPLOADS_BUCKET")
 
 publisher = pubsub_v1.PublisherClient()
 if PROJECT_ID:
@@ -73,3 +76,27 @@ async def ingest_events(events: List[CFAPEvent]):
     except Exception as exc:
         logger.exception("Failed to publish events: %s", exc)
         raise HTTPException(status_code=502, detail="Failed to publish events to Pub/Sub")
+
+
+class UploadRequest(BaseModel):
+    filename: str = Field(..., description="Filename including extension (e.g. data.csv)")
+
+
+@app.post("/v1/uploads/url")
+def generate_signed_upload_url(req: UploadRequest):
+    """Return a V4 signed PUT URL for direct upload to GCS."""
+    if not UPLOADS_BUCKET:
+        raise HTTPException(status_code=500, detail="Uploads bucket not configured")
+
+    storage_client = storage.Client()
+    bucket = storage_client.bucket(UPLOADS_BUCKET)
+    # create a unique object name to avoid collisions
+    object_name = f"uploads/{uuid.uuid4().hex}-{req.filename}"
+    blob = bucket.blob(object_name)
+
+    try:
+        url = blob.generate_signed_url(version="v4", expiration=3600, method="PUT", content_type="application/octet-stream")
+        return {"url": url, "object": object_name, "method": "PUT"}
+    except Exception as exc:
+        logger.exception("Failed to generate signed URL: %s", exc)
+        raise HTTPException(status_code=500, detail="Failed to generate signed URL")

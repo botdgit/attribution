@@ -11,12 +11,14 @@ export default function FileUpload() {
   const upload = async () => {
     if (!file) return;
     setStatus('uploading');
-    // We assume a signed upload URL endpoint exists at /api/uploads/url
-    const res = await fetch('/api/uploads/url', { method: 'POST' });
+    const res = await fetch('/v1/uploads/url', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ filename: file.name }) });
     const body = await res.json();
     const uploadUrl = body.url;
-    await fetch(uploadUrl, { method: 'PUT', body: file });
+    const objectPath = body.object;
+    await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': 'application/octet-stream' } });
     setStatus('done');
+    // optional: inform backend to start processing (Cloud Function listens to bucket notification)
+    console.log('uploaded to', objectPath);
   }
 
   return (

@@ -4,13 +4,24 @@ import { Badge } from "@/components/ui/badge";
 import Navigation from "@/components/Navigation";
 import FileUpload from "@/components/FileUpload";
 import { ShoppingBag, Database, Upload, CheckCircle, Plus, Settings, FileSpreadsheet, Globe } from "lucide-react";
+import { useEffect, useState } from "react";
 const Connect = () => {
+  const [shopifyStatus, setShopifyStatus] = useState<"connected"|"available"|"pending">("available");
+  useEffect(() => {
+    fetch("/api/integrations/shopify", { headers: { } })
+      .then(r => r.json())
+      .then(d => {
+        if (d.connected) setShopifyStatus("connected");
+      })
+      .catch(() => {});
+  }, []);
+
   const integrations = [{
     name: "Shopify",
     icon: ShoppingBag,
-    status: "connected",
+    status: shopifyStatus,
     description: "E-commerce data and transactions",
-    metrics: "1.2M orders • 45K customers"
+    metrics: shopifyStatus === "connected" ? "Connected" : "Not connected"
   }, {
     name: "Google Analytics",
     icon: Globe,

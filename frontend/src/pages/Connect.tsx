@@ -145,3 +145,4 @@ const Connect = () => {
     </div>
   );
 }
+export default Connect;

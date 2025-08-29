@@ -1,92 +1,252 @@
-from causal_engine.base import CausalModelBase
+"""Difference-in-Differences causal model implementation."""
 import pandas as pd
+import numpy as np
+import uuid
+import logging
+from typing import Dict, Any, Optional
 from google.cloud import bigquery
 import statsmodels.api as sm
-from causal_engine.utils.bq import get_bq_table_spec
-import uuid
+
+from causal_engine.base import CausalModelBase
+from common.settings import get_bq_table_spec
+
+
+logger = logging.getLogger(__name__)
 
 
 class DifferenceInDifferencesModel(CausalModelBase):
-    def __init__(self, client_id: str, model_params: dict):
+    """
+    Difference-in-Differences (DiD) causal model.
+    
+    This model estimates causal effects by comparing treatment and control groups
+    before and after an intervention. It's particularly useful for:
+    - Marketing campaign lift analysis
+    - A/B test validation
+    - Natural experiment analysis
+    """
+    
+    def __init__(self, client_id: str, model_params: Dict[str, Any]):
+        """Initialize DID model with specific parameters."""
         super().__init__(client_id, model_params)
-        self.project = model_params.get("project")
-        self.dataset = model_params.get("dataset", "cfap_analytics")
-        self.table = model_params.get("table", "standard_events")
+        
+        # DID-specific parameters
         self.campaign_id = model_params.get("campaign_id")
-        self.bq_client = bigquery.Client(project=self.project) if self.project else bigquery.Client()
+        self.split_date = model_params.get("split_date")
+        self.treatment_channel = model_params.get("treatment_channel", "paid_search")
+        self.outcome_metric = model_params.get("outcome_metric", "conversion")
+        
+        if not self.campaign_id:
+            raise ValueError("campaign_id is required for DID analysis")
+        
+        logger.info(f"DID model initialized for campaign {self.campaign_id}")
 
     def load_data(self) -> pd.DataFrame:
-        # Query the canonical standard_events table filtered by campaign_id and required fields
-        table_spec = get_bq_table_spec(self.project, self.dataset, self.table)
-        query = f"SELECT event_id, timestamp, event_type, revenue_usd, marketing_channel, campaign_id, user_anonymous_id FROM `{table_spec}` WHERE campaign_id = @campaign_id"
-        job_config = bigquery.QueryJobConfig(
-            query_parameters=[bigquery.ScalarQueryParameter("campaign_id", "STRING", self.campaign_id)]
+        """
+        Load data from the canonical standard_events table.
+        
+        Returns:
+            DataFrame with events filtered by campaign_id and required fields
+        """
+        try:
+            table_spec = get_bq_table_spec(self.project, self.dataset, self.table)
+            
+            query = f"""
+            SELECT 
+                event_id,
+                timestamp,
+                event_type,
+                revenue_usd,
+                marketing_channel,
+                campaign_id,
+                user_anonymous_id
+            FROM `{table_spec}` 
+            WHERE campaign_id = @campaign_id
+            ORDER BY timestamp
+            """
+            
+            job_config = bigquery.QueryJobConfig(
+                query_parameters=[
+                    bigquery.ScalarQueryParameter("campaign_id", "STRING", self.campaign_id)
+                ]
+            )
+            
+            query_job = self.bq_client.query(query, job_config=job_config)
+            df = query_job.to_dataframe()
+            
+            logger.info(f"Loaded {len(df)} events for campaign {self.campaign_id}")
+            return df
+            
+        except Exception as e:
+            logger.error(f"Failed to load data: {e}")
+            raise
+
+    def _prepare_did_data(self, data: pd.DataFrame) -> pd.DataFrame:
+        """
+        Prepare data for DID analysis by creating treatment and post flags.
+        
+        Args:
+            data: Raw event data
+            
+        Returns:
+            DataFrame with is_treatment and is_post flags
+        """
+        if data.empty:
+            return data
+        
+        # Create treatment flag based on marketing channel
+        data["is_treatment"] = (
+            data["marketing_channel"].notna() & 
+            (data["marketing_channel"] == self.treatment_channel)
         )
-        query_job = self.bq_client.query(query, job_config=job_config)
-        df = query_job.to_dataframe()
-        return df
+        
+        # Create post-treatment flag
+        if self.split_date:
+            split_datetime = pd.to_datetime(self.split_date)
+            data["is_post"] = pd.to_datetime(data["timestamp"]) >= split_datetime
+        else:
+            # Default: use median timestamp as split
+            median_time = pd.to_datetime(data["timestamp"]).median()
+            data["is_post"] = pd.to_datetime(data["timestamp"]) >= median_time
+            logger.info(f"Using median timestamp as split: {median_time}")
+        
+        # Create outcome variable
+        if self.outcome_metric == "conversion":
+            data["outcome"] = (data["event_type"] == "conversion").astype(int)
+        elif self.outcome_metric == "revenue":
+            data["outcome"] = data["revenue_usd"].fillna(0)
+        else:
+            data["outcome"] = 1  # Default: count all events
+        
+        return data
 
     def run_analysis(self, data: pd.DataFrame) -> pd.DataFrame:
-        # Expecting prepared data with is_treatment and is_post flags; if not present, attempt a naive construction
-        if data.empty:
-            return pd.DataFrame([{"campaign_id": self.campaign_id, "lift_estimate": None, "error": "no data"}])
-
-        # For simplicity, expect event_type == 'conversion' to be counted as conversions
-        # Build an aggregated table by (is_treatment, is_post)
-        # NOTE: This is a simplification; production should use prepared rollups.
-        data["is_treatment"] = data.get("marketing_channel", "").notnull()
-        # Create a naive is_post flag based on timestamp relative to a supplied split_date param
-        split_date = self.params.get("split_date")
-        if split_date:
-            data["is_post"] = pd.to_datetime(data["timestamp"]) >= pd.to_datetime(split_date)
-        else:
-            # default: last 50% of time as post period
-            ts_sorted = pd.to_datetime(data["timestamp"]).sort_values()
-            median_ts = ts_sorted.iloc[len(ts_sorted) // 2]
-            data["is_post"] = pd.to_datetime(data["timestamp"]) >= median_ts
-
-        data["conversions"] = data["event_type"].apply(lambda x: 1 if x == "purchase" or x == "conversion" else 0)
-        df = data[["conversions", "is_treatment", "is_post"]].copy()
-        df["interaction"] = df["is_treatment"] * df["is_post"]
-        X = sm.add_constant(df[["is_treatment", "is_post", "interaction"]])
-        y = df["conversions"]
-        model = sm.OLS(y, X).fit()
-        lift = model.params.get("interaction") if "interaction" in model.params else None
-
-        # Confidence interval for the interaction term (95%)
-        ci_low = None
-        ci_high = None
+        """
+        Perform the Difference-in-Differences analysis.
+        
+        Args:
+            data: Prepared data with treatment and control groups
+            
+        Returns:
+            DataFrame with DID results
+        """
         try:
-            ci = model.conf_int(alpha=0.05)
-            if "interaction" in ci.index:
-                ci_low = float(ci.loc["interaction"][0])
-                ci_high = float(ci.loc["interaction"][1])
-        except Exception:
-            # leave CI as None if computation fails
-            pass
-
-        out = {
-            "analysis_id": str(uuid.uuid4()),
-            "campaign_id": self.campaign_id,
-            "lift_estimate": float(lift) if lift is not None else None,
-            "confidence_interval_low": ci_low,
-            "confidence_interval_high": ci_high,
-            "model_name": "did",
-            "analysis_timestamp": pd.Timestamp.utcnow().isoformat(),
-        }
-        return pd.DataFrame([out])
+            if data.empty:
+                return pd.DataFrame([{
+                    "campaign_id": self.campaign_id,
+                    "effect_size": None,
+                    "confidence_interval_lower": None,
+                    "confidence_interval_upper": None,
+                    "p_value": None,
+                    "standard_error": None,
+                    "error": "no data"
+                }])
+            
+            # Prepare DID data
+            did_data = self._prepare_did_data(data)
+            
+            if did_data.empty:
+                return pd.DataFrame([{
+                    "campaign_id": self.campaign_id,
+                    "effect_size": None,
+                    "error": "no data after preparation"
+                }])
+            
+            # Aggregate data for DID regression
+            agg_data = did_data.groupby(["is_treatment", "is_post"]).agg({
+                "outcome": ["sum", "count"],
+                "user_anonymous_id": "nunique"
+            }).reset_index()
+            
+            # Flatten column names
+            agg_data.columns = ["is_treatment", "is_post", "outcome_sum", "event_count", "unique_users"]
+            
+            # If we have fewer than 4 cells (2x2), can't run DID
+            if len(agg_data) < 4:
+                return pd.DataFrame([{
+                    "campaign_id": self.campaign_id,
+                    "effect_size": None,
+                    "error": "insufficient data for DID (need treatment/control x pre/post)"
+                }])
+            
+            # Create regression variables
+            agg_data["interaction"] = agg_data["is_treatment"] * agg_data["is_post"]
+            
+            # Run OLS regression
+            # Outcome rate = α + β₁(Treatment) + β₂(Post) + β₃(Treatment × Post) + ε
+            y = agg_data["outcome_sum"] / agg_data["event_count"]  # Outcome rate
+            X = sm.add_constant(agg_data[["is_treatment", "is_post", "interaction"]])
+            
+            model = sm.OLS(y, X).fit()
+            
+            # Extract DID estimate (interaction coefficient)
+            did_estimate = model.params.get("interaction", 0)
+            did_stderr = model.bse.get("interaction", 0)
+            did_pvalue = model.pvalues.get("interaction", 1)
+            
+            # Calculate confidence interval
+            conf_int = model.conf_int().loc["interaction"] if "interaction" in model.conf_int().index else [0, 0]
+            
+            # Prepare results
+            result = {
+                "campaign_id": self.campaign_id,
+                "effect_size": float(did_estimate),
+                "standard_error": float(did_stderr),
+                "p_value": float(did_pvalue),
+                "confidence_interval_lower": float(conf_int[0]),
+                "confidence_interval_upper": float(conf_int[1]),
+                "r_squared": float(model.rsquared),
+                "n_observations": int(len(agg_data)),
+                "treatment_pre_mean": float(agg_data[
+                    (agg_data["is_treatment"] == 1) & (agg_data["is_post"] == 0)
+                ]["outcome_sum"].sum() / agg_data[
+                    (agg_data["is_treatment"] == 1) & (agg_data["is_post"] == 0)
+                ]["event_count"].sum()) if len(agg_data[
+                    (agg_data["is_treatment"] == 1) & (agg_data["is_post"] == 0)
+                ]) > 0 else 0,
+                "control_pre_mean": float(agg_data[
+                    (agg_data["is_treatment"] == 0) & (agg_data["is_post"] == 0)
+                ]["outcome_sum"].sum() / agg_data[
+                    (agg_data["is_treatment"] == 0) & (agg_data["is_post"] == 0)
+                ]["event_count"].sum()) if len(agg_data[
+                    (agg_data["is_treatment"] == 0) & (agg_data["is_post"] == 0)
+                ]) > 0 else 0,
+                "diagnostics": {
+                    "model_summary": str(model.summary()),
+                    "data_hash": self.get_data_hash(did_data)
+                }
+            }
+            
+            logger.info(f"DID analysis complete. Effect size: {did_estimate:.4f}, p-value: {did_pvalue:.4f}")
+            
+            return pd.DataFrame([result])
+            
+        except Exception as e:
+            logger.error(f"DID analysis failed: {e}")
+            return pd.DataFrame([{
+                "campaign_id": self.campaign_id,
+                "effect_size": None,
+                "error": str(e)
+            }])
 
     def write_results(self, results: pd.DataFrame):
-        # Append to BigQuery lift_analysis_results table
-        from pandas_gbq import to_gbq
-
-        # destination_table expected by pandas_gbq is dataset.table; pass project_id separately
-        destination_table = f"{self.dataset}.lift_analysis_results"
-
-        # Ensure required fields exist
-        if "analysis_id" not in results.columns:
-            results["analysis_id"] = results.apply(lambda _: str(uuid.uuid4()), axis=1)
-        if "analysis_timestamp" not in results.columns:
-            results["analysis_timestamp"] = pd.Timestamp.utcnow().isoformat()
-
-        to_gbq(results, destination_table, project_id=self.project, if_exists="append")
+        """Write DID results to BigQuery with proper schema."""
+        try:
+            # Ensure required fields exist
+            if "analysis_id" not in results.columns:
+                results["analysis_id"] = self.analysis_id
+            if "analysis_timestamp" not in results.columns:
+                results["analysis_timestamp"] = self.analysis_timestamp
+            
+            # Convert diagnostics dict to JSON string for BigQuery
+            if "diagnostics" in results.columns:
+                import json
+                results["diagnostics"] = results["diagnostics"].apply(
+                    lambda x: json.dumps(x) if isinstance(x, dict) else str(x)
+                )
+            
+            # Call parent method to handle the actual writing
+            super().write_results(results)
+            
+        except Exception as e:
+            logger.error(f"Failed to write DID results: {e}")
+            raise

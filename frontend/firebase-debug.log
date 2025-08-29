@@ -1,0 +1,454 @@
+[debug] [2025-08-28T20:31:14.633Z] ----------------------------------------------------------------------
+[debug] [2025-08-28T20:31:14.646Z] Command:       /usr/local/share/nvm/versions/node/v22.17.0/bin/node /home/codespace/nvm/current/bin/firebase deploy --only hosting --project attribution-ebf3a --debug
+[debug] [2025-08-28T20:31:14.647Z] CLI Version:   14.15.0
+[debug] [2025-08-28T20:31:14.647Z] Platform:      linux
+[debug] [2025-08-28T20:31:14.651Z] Node Version:  v22.17.0
+[debug] [2025-08-28T20:31:14.651Z] Time:          Thu Aug 28 2025 20:31:14 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-08-28T20:31:14.652Z] Env Overrides: GITHUB_API_URL, GITHUB_API_URL
+[debug] [2025-08-28T20:31:14.652Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-08-28T20:31:14.944Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-28T20:31:14.945Z] > authorizing via signed-in user (danob2003@gmail.com)
+[debug] [2025-08-28T20:31:14.945Z] [iam] checking project attribution-ebf3a for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-08-28T20:31:14.946Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:14.946Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:14.947Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions [none]
+[debug] [2025-08-28T20:31:14.947Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions x-goog-quota-user=projects/attribution-ebf3a
+[debug] [2025-08-28T20:31:14.947Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-08-28T20:31:15.566Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions 200
+[debug] [2025-08-28T20:31:15.567Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-08-28T20:31:15.567Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:15.568Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:15.568Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a [none]
+[debug] [2025-08-28T20:31:15.808Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a 200
+[debug] [2025-08-28T20:31:15.809Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a {"projectId":"attribution-ebf3a","projectNumber":"703404834602","displayName":"attribution","name":"projects/attribution-ebf3a","resources":{"hostingSite":"attribution-ebf3a"},"state":"ACTIVE","etag":"1_2bc3a36b-2b2f-495c-8b5e-a0c8d4ca9c88"}
+[info] 
+[info] === Deploying to 'attribution-ebf3a'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2025-08-28T20:31:15.815Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:15.815Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:15.815Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions [none]
+[debug] [2025-08-28T20:31:15.816Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2025-08-28T20:31:16.732Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions 200
+[debug] [2025-08-28T20:31:16.732Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions {"name":"projects/703404834602/sites/attribution-ebf3a/versions/78017dd2774eb6d7","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[attribution-ebf3a]: beginning deploy... 
+[info] i  hosting[attribution-ebf3a]: found 7 files in dist 
+[debug] [2025-08-28T20:31:16.744Z] [hosting] uploading with 200 concurrency
+[debug] [2025-08-28T20:31:16.745Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:16.746Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:16.746Z] [hosting] hash cache [ZGlzdA] stored for 7 files
+[debug] [2025-08-28T20:31:16.746Z] [hosting][hash queue][FINAL] {"max":0,"min":0,"avg":0,"active":0,"complete":7,"success":7,"errored":0,"retried":0,"total":7,"elapsed":1}
+[debug] [2025-08-28T20:31:16.747Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/78017dd2774eb6d7:populateFiles [none]
+[debug] [2025-08-28T20:31:16.747Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/78017dd2774eb6d7:populateFiles {"files":{"/robots.txt":"1607453ac46595005517bb2a960e3070f20a1f2556a6fa4da68fdec6ccf1666d","/placeholder.svg":"8ee7ca26f189f625f80a6610d755902f46c281280c072a43296c4d9b7445c2f1","/index.html":"f4dd6f21ba6632f94bbd833291b2fb4dea9115a5dcc65234a003fb5991920f41","/assets/vendor_firebase-CIiYOSYp.js":"87fcbf0ff65845e6953197bd1fac185eca0636c87fdb440fff5879b65c549324","/assets/vendor-ChAPQ9Fg.js":"c629c657f5e47350be2abe229be23464d6dc6902a534d631ca1b537bb00af5e7","/assets/index-byjPyqH7.css":"3ec50841770c60b87537dd5ac2d1d20c90aa839909dcdeac384c010f50965d70","/assets/index-C1ie83Lm.js":"4271dc656b28e655354523daf245d6d2ad47b872a67d4557e97802b0ab7a9d7a"}}
+[debug] [2025-08-28T20:31:16.957Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/78017dd2774eb6d7:populateFiles 200
+[debug] [2025-08-28T20:31:16.958Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/78017dd2774eb6d7:populateFiles {"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/78017dd2774eb6d7/files"}
+[debug] [2025-08-28T20:31:16.958Z] [hosting][populate queue][FINAL] {"max":213,"min":213,"avg":213,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":213}
+[debug] [2025-08-28T20:31:16.959Z] [hosting] uploads queued: 0
+[debug] [2025-08-28T20:31:16.959Z] [hosting][upload queue][FINAL] {"max":0,"min":9999999999,"avg":0,"active":0,"complete":0,"success":0,"errored":0,"retried":0,"total":0,"elapsed":1756413076959}
+[info] i  hosting: upload complete 
+[info] ✔  hosting[attribution-ebf3a]: file upload complete 
+[debug] [2025-08-28T20:31:16.960Z] [hosting] deploy completed after 226ms
+[debug] [2025-08-28T20:31:16.960Z] [
+  {
+    "config": {
+      "public": "dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "site": "attribution-ebf3a"
+    },
+    "version": "projects/703404834602/sites/attribution-ebf3a/versions/78017dd2774eb6d7"
+  }
+]
+[info] i  hosting[attribution-ebf3a]: finalizing version... 
+[debug] [2025-08-28T20:31:16.962Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:16.962Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:16.962Z] >>> [apiv2][query] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/78017dd2774eb6d7 updateMask=status%2Cconfig
+[debug] [2025-08-28T20:31:16.962Z] >>> [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/78017dd2774eb6d7 {"status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]}}
+[debug] [2025-08-28T20:31:17.266Z] <<< [apiv2][status] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/78017dd2774eb6d7 200
+[debug] [2025-08-28T20:31:17.266Z] <<< [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/78017dd2774eb6d7 {"name":"projects/703404834602/sites/attribution-ebf3a/versions/78017dd2774eb6d7","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T20:31:16.454752Z","createUser":{"email":"danob2003@gmail.com"},"finalizeTime":"2025-08-28T20:31:17.187704Z","finalizeUser":{"email":"danob2003@gmail.com"}}
+[debug] [2025-08-28T20:31:17.266Z] [hosting] finalized version for attribution-ebf3a:[object Object]
+[info] ✔  hosting[attribution-ebf3a]: version finalized 
+[info] i  hosting[attribution-ebf3a]: releasing new version... 
+[debug] [2025-08-28T20:31:17.267Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:17.267Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:31:17.267Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases versionName=projects%2F703404834602%2Fsites%2Fattribution-ebf3a%2Fversions%2F78017dd2774eb6d7
+[debug] [2025-08-28T20:31:17.267Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases {}
+[debug] [2025-08-28T20:31:17.491Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases 200
+[debug] [2025-08-28T20:31:17.491Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases {"name":"projects/703404834602/sites/attribution-ebf3a/channels/live/releases/1756413076865000","version":{"name":"projects/703404834602/sites/attribution-ebf3a/versions/78017dd2774eb6d7","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T20:31:16.454752Z","createUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"},"finalizeTime":"2025-08-28T20:31:17.187704Z","finalizeUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}},"type":"DEPLOY","releaseTime":"2025-08-28T20:31:16.865Z","releaseUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}}
+[debug] [2025-08-28T20:31:17.492Z] [hosting] release: {"name":"projects/703404834602/sites/attribution-ebf3a/channels/live/releases/1756413076865000","version":{"name":"projects/703404834602/sites/attribution-ebf3a/versions/78017dd2774eb6d7","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T20:31:16.454752Z","createUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"},"finalizeTime":"2025-08-28T20:31:17.187704Z","finalizeUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}},"type":"DEPLOY","releaseTime":"2025-08-28T20:31:16.865Z","releaseUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}}
+[info] ✔  hosting[attribution-ebf3a]: release complete 
+[info] 
+[info] ✔  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/attribution-ebf3a/overview
+[info] Hosting URL: https://attribution-ebf3a.web.app
+[debug] [2025-08-28T20:42:44.439Z] ----------------------------------------------------------------------
+[debug] [2025-08-28T20:42:44.440Z] Command:       /usr/local/share/nvm/versions/node/v22.17.0/bin/node /home/codespace/nvm/current/bin/firebase deploy --only hosting --project attribution-ebf3a --debug
+[debug] [2025-08-28T20:42:44.441Z] CLI Version:   14.15.0
+[debug] [2025-08-28T20:42:44.441Z] Platform:      linux
+[debug] [2025-08-28T20:42:44.441Z] Node Version:  v22.17.0
+[debug] [2025-08-28T20:42:44.441Z] Time:          Thu Aug 28 2025 20:42:44 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-08-28T20:42:44.441Z] Env Overrides: GITHUB_API_URL, GITHUB_API_URL
+[debug] [2025-08-28T20:42:44.441Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-08-28T20:42:44.727Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-28T20:42:44.728Z] > authorizing via signed-in user (danob2003@gmail.com)
+[debug] [2025-08-28T20:42:44.728Z] [iam] checking project attribution-ebf3a for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-08-28T20:42:44.729Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:44.729Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:44.730Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions [none]
+[debug] [2025-08-28T20:42:44.730Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions x-goog-quota-user=projects/attribution-ebf3a
+[debug] [2025-08-28T20:42:44.730Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-08-28T20:42:44.917Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions 200
+[debug] [2025-08-28T20:42:44.918Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-08-28T20:42:44.918Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:44.919Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:44.919Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a [none]
+[debug] [2025-08-28T20:42:45.155Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a 200
+[debug] [2025-08-28T20:42:45.155Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a {"projectId":"attribution-ebf3a","projectNumber":"703404834602","displayName":"attribution","name":"projects/attribution-ebf3a","resources":{"hostingSite":"attribution-ebf3a"},"state":"ACTIVE","etag":"1_2bc3a36b-2b2f-495c-8b5e-a0c8d4ca9c88"}
+[info] 
+[info] === Deploying to 'attribution-ebf3a'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2025-08-28T20:42:45.159Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:45.159Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:45.160Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions [none]
+[debug] [2025-08-28T20:42:45.160Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2025-08-28T20:42:46.164Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions 200
+[debug] [2025-08-28T20:42:46.164Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions {"name":"projects/703404834602/sites/attribution-ebf3a/versions/cadc99c385bbed0b","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[attribution-ebf3a]: beginning deploy... 
+[info] i  hosting[attribution-ebf3a]: found 7 files in dist 
+[debug] [2025-08-28T20:42:46.176Z] [hosting] uploading with 200 concurrency
+[debug] [2025-08-28T20:42:46.198Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.198Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.198Z] [hosting] hash cache [ZGlzdA] stored for 7 files
+[debug] [2025-08-28T20:42:46.199Z] [hosting][hash queue][FINAL] {"max":20,"min":6,"avg":9,"active":0,"complete":7,"success":7,"errored":0,"retried":0,"total":7,"elapsed":23}
+[debug] [2025-08-28T20:42:46.199Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/cadc99c385bbed0b:populateFiles [none]
+[debug] [2025-08-28T20:42:46.199Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/cadc99c385bbed0b:populateFiles {"files":{"/robots.txt":"1607453ac46595005517bb2a960e3070f20a1f2556a6fa4da68fdec6ccf1666d","/placeholder.svg":"8ee7ca26f189f625f80a6610d755902f46c281280c072a43296c4d9b7445c2f1","/index.html":"cb432d6b61cafff83aab77dd7d1562a915185be9d07d7515b4bc04e53f9344c3","/assets/index-DsQBIWqs.js":"d107ca8675aca65d6e0f55b9af4fd6f6e40153a33e28dcf852fd6c5dfe4de929","/assets/index-DMnyuWA8.css":"584c1c127e8f195e340fd963b29ee33041cee26a11a23d834972b277627c82f6","/assets/vendor_firebase-CRZqMu20.js":"93ad54bb5213d711c13de933d219ab60ceb0b208963fc18ca673c66ae6404f2b","/assets/vendor-0ovESEJ9.js":"1333d2c7b8ad307fc4eb706ab727a108ad46682578dca4aa0e2c57c4d36478ec"}}
+[debug] [2025-08-28T20:42:46.414Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/cadc99c385bbed0b:populateFiles 200
+[debug] [2025-08-28T20:42:46.414Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/cadc99c385bbed0b:populateFiles {"uploadRequiredHashes":["cb432d6b61cafff83aab77dd7d1562a915185be9d07d7515b4bc04e53f9344c3","d107ca8675aca65d6e0f55b9af4fd6f6e40153a33e28dcf852fd6c5dfe4de929","584c1c127e8f195e340fd963b29ee33041cee26a11a23d834972b277627c82f6","93ad54bb5213d711c13de933d219ab60ceb0b208963fc18ca673c66ae6404f2b","1333d2c7b8ad307fc4eb706ab727a108ad46682578dca4aa0e2c57c4d36478ec"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files"}
+[debug] [2025-08-28T20:42:46.415Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.415Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.416Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.416Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.416Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.416Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.416Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.416Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.417Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.417Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:46.417Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/cb432d6b61cafff83aab77dd7d1562a915185be9d07d7515b4bc04e53f9344c3 [none]
+[debug] [2025-08-28T20:42:46.417Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/cb432d6b61cafff83aab77dd7d1562a915185be9d07d7515b4bc04e53f9344c3 [stream]
+[debug] [2025-08-28T20:42:46.418Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/d107ca8675aca65d6e0f55b9af4fd6f6e40153a33e28dcf852fd6c5dfe4de929 [none]
+[debug] [2025-08-28T20:42:46.418Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/d107ca8675aca65d6e0f55b9af4fd6f6e40153a33e28dcf852fd6c5dfe4de929 [stream]
+[debug] [2025-08-28T20:42:46.420Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/584c1c127e8f195e340fd963b29ee33041cee26a11a23d834972b277627c82f6 [none]
+[debug] [2025-08-28T20:42:46.420Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/584c1c127e8f195e340fd963b29ee33041cee26a11a23d834972b277627c82f6 [stream]
+[debug] [2025-08-28T20:42:46.421Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/93ad54bb5213d711c13de933d219ab60ceb0b208963fc18ca673c66ae6404f2b [none]
+[debug] [2025-08-28T20:42:46.421Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/93ad54bb5213d711c13de933d219ab60ceb0b208963fc18ca673c66ae6404f2b [stream]
+[debug] [2025-08-28T20:42:46.426Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/1333d2c7b8ad307fc4eb706ab727a108ad46682578dca4aa0e2c57c4d36478ec [none]
+[debug] [2025-08-28T20:42:46.427Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/1333d2c7b8ad307fc4eb706ab727a108ad46682578dca4aa0e2c57c4d36478ec [stream]
+[debug] [2025-08-28T20:42:46.429Z] [hosting][populate queue][FINAL] {"max":219,"min":219,"avg":219,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":231}
+[debug] [2025-08-28T20:42:46.430Z] [hosting] uploads queued: 5
+[debug] [2025-08-28T20:42:47.452Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/1333d2c7b8ad307fc4eb706ab727a108ad46682578dca4aa0e2c57c4d36478ec 200
+[debug] [2025-08-28T20:42:47.452Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/1333d2c7b8ad307fc4eb706ab727a108ad46682578dca4aa0e2c57c4d36478ec [stream]
+[debug] [2025-08-28T20:42:47.454Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/cb432d6b61cafff83aab77dd7d1562a915185be9d07d7515b4bc04e53f9344c3 200
+[debug] [2025-08-28T20:42:47.454Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/cb432d6b61cafff83aab77dd7d1562a915185be9d07d7515b4bc04e53f9344c3 [stream]
+[debug] [2025-08-28T20:42:47.520Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/584c1c127e8f195e340fd963b29ee33041cee26a11a23d834972b277627c82f6 200
+[debug] [2025-08-28T20:42:47.520Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/584c1c127e8f195e340fd963b29ee33041cee26a11a23d834972b277627c82f6 [stream]
+[debug] [2025-08-28T20:42:47.579Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/93ad54bb5213d711c13de933d219ab60ceb0b208963fc18ca673c66ae6404f2b 200
+[debug] [2025-08-28T20:42:47.580Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/93ad54bb5213d711c13de933d219ab60ceb0b208963fc18ca673c66ae6404f2b [stream]
+[info] i  hosting: uploading new files [4/5] (80%) 
+[debug] [2025-08-28T20:42:48.355Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/d107ca8675aca65d6e0f55b9af4fd6f6e40153a33e28dcf852fd6c5dfe4de929 200
+[debug] [2025-08-28T20:42:48.355Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/cadc99c385bbed0b/files/d107ca8675aca65d6e0f55b9af4fd6f6e40153a33e28dcf852fd6c5dfe4de929 [stream]
+[debug] [2025-08-28T20:42:48.356Z] [hosting][upload queue][FINAL] {"max":1941,"min":1037,"avg":1257,"active":0,"complete":5,"success":5,"errored":0,"retried":0,"total":5,"elapsed":1941}
+[info] i  hosting: upload complete 
+[info] ✔  hosting[attribution-ebf3a]: file upload complete 
+[debug] [2025-08-28T20:42:48.356Z] [hosting] deploy completed after 2190ms
+[debug] [2025-08-28T20:42:48.357Z] [
+  {
+    "config": {
+      "public": "dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "site": "attribution-ebf3a"
+    },
+    "version": "projects/703404834602/sites/attribution-ebf3a/versions/cadc99c385bbed0b"
+  }
+]
+[info] i  hosting[attribution-ebf3a]: finalizing version... 
+[debug] [2025-08-28T20:42:48.358Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:48.358Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:48.358Z] >>> [apiv2][query] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/cadc99c385bbed0b updateMask=status%2Cconfig
+[debug] [2025-08-28T20:42:48.358Z] >>> [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/cadc99c385bbed0b {"status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]}}
+[debug] [2025-08-28T20:42:48.531Z] <<< [apiv2][status] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/cadc99c385bbed0b 200
+[debug] [2025-08-28T20:42:48.531Z] <<< [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/cadc99c385bbed0b {"name":"projects/703404834602/sites/attribution-ebf3a/versions/cadc99c385bbed0b","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T20:42:45.819156Z","createUser":{"email":"danob2003@gmail.com"},"finalizeTime":"2025-08-28T20:42:48.463609Z","finalizeUser":{"email":"danob2003@gmail.com"}}
+[debug] [2025-08-28T20:42:48.531Z] [hosting] finalized version for attribution-ebf3a:[object Object]
+[info] ✔  hosting[attribution-ebf3a]: version finalized 
+[info] i  hosting[attribution-ebf3a]: releasing new version... 
+[debug] [2025-08-28T20:42:48.532Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:48.532Z] Checked if tokens are valid: true, expires at: 1756415008388
+[debug] [2025-08-28T20:42:48.532Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases versionName=projects%2F703404834602%2Fsites%2Fattribution-ebf3a%2Fversions%2Fcadc99c385bbed0b
+[debug] [2025-08-28T20:42:48.532Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases {}
+[debug] [2025-08-28T20:42:48.760Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases 200
+[debug] [2025-08-28T20:42:48.760Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases {"name":"projects/703404834602/sites/attribution-ebf3a/channels/live/releases/1756413768129000","version":{"name":"projects/703404834602/sites/attribution-ebf3a/versions/cadc99c385bbed0b","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T20:42:45.819156Z","createUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"},"finalizeTime":"2025-08-28T20:42:48.463609Z","finalizeUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}},"type":"DEPLOY","releaseTime":"2025-08-28T20:42:48.129Z","releaseUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}}
+[debug] [2025-08-28T20:42:48.760Z] [hosting] release: {"name":"projects/703404834602/sites/attribution-ebf3a/channels/live/releases/1756413768129000","version":{"name":"projects/703404834602/sites/attribution-ebf3a/versions/cadc99c385bbed0b","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T20:42:45.819156Z","createUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"},"finalizeTime":"2025-08-28T20:42:48.463609Z","finalizeUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}},"type":"DEPLOY","releaseTime":"2025-08-28T20:42:48.129Z","releaseUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}}
+[info] ✔  hosting[attribution-ebf3a]: release complete 
+[info] 
+[info] ✔  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/attribution-ebf3a/overview
+[info] Hosting URL: https://attribution-ebf3a.web.app
+[debug] [2025-08-28T21:14:14.258Z] ----------------------------------------------------------------------
+[debug] [2025-08-28T21:14:14.259Z] Command:       /usr/local/share/nvm/versions/node/v22.17.0/bin/node /home/codespace/nvm/current/bin/firebase deploy --only hosting --project attribution-ebf3a --debug
+[debug] [2025-08-28T21:14:14.260Z] CLI Version:   14.15.0
+[debug] [2025-08-28T21:14:14.260Z] Platform:      linux
+[debug] [2025-08-28T21:14:14.260Z] Node Version:  v22.17.0
+[debug] [2025-08-28T21:14:14.260Z] Time:          Thu Aug 28 2025 21:14:14 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-08-28T21:14:14.260Z] Env Overrides: GITHUB_API_URL, GITHUB_API_URL
+[debug] [2025-08-28T21:14:14.260Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-08-28T21:14:14.518Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-28T21:14:14.519Z] > authorizing via signed-in user (danob2003@gmail.com)
+[debug] [2025-08-28T21:14:14.519Z] [iam] checking project attribution-ebf3a for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-08-28T21:14:14.520Z] Checked if tokens are valid: false, expires at: 1756415008388
+[debug] [2025-08-28T21:14:14.521Z] Checked if tokens are valid: false, expires at: 1756415008388
+[debug] [2025-08-28T21:14:14.521Z] > refreshing access token with scopes: []
+[debug] [2025-08-28T21:14:14.523Z] >>> [apiv2][query] POST https://www.googleapis.com/oauth2/v3/token [none]
+[debug] [2025-08-28T21:14:14.523Z] >>> [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-08-28T21:14:14.625Z] <<< [apiv2][status] POST https://www.googleapis.com/oauth2/v3/token 200
+[debug] [2025-08-28T21:14:14.625Z] <<< [apiv2][body] POST https://www.googleapis.com/oauth2/v3/token [omitted]
+[debug] [2025-08-28T21:14:14.630Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions [none]
+[debug] [2025-08-28T21:14:14.630Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions x-goog-quota-user=projects/attribution-ebf3a
+[debug] [2025-08-28T21:14:14.630Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-08-28T21:14:15.222Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions 200
+[debug] [2025-08-28T21:14:15.222Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-08-28T21:14:15.223Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:15.223Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:15.223Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a [none]
+[debug] [2025-08-28T21:14:15.462Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a 200
+[debug] [2025-08-28T21:14:15.463Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a {"projectId":"attribution-ebf3a","projectNumber":"703404834602","displayName":"attribution","name":"projects/attribution-ebf3a","resources":{"hostingSite":"attribution-ebf3a"},"state":"ACTIVE","etag":"1_2bc3a36b-2b2f-495c-8b5e-a0c8d4ca9c88"}
+[info] 
+[info] === Deploying to 'attribution-ebf3a'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2025-08-28T21:14:15.467Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:15.467Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:15.467Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions [none]
+[debug] [2025-08-28T21:14:15.467Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2025-08-28T21:14:16.520Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions 200
+[debug] [2025-08-28T21:14:16.520Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions {"name":"projects/703404834602/sites/attribution-ebf3a/versions/b87d505a4e33aed7","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[attribution-ebf3a]: beginning deploy... 
+[info] i  hosting[attribution-ebf3a]: found 7 files in dist 
+[debug] [2025-08-28T21:14:16.532Z] [hosting] uploading with 200 concurrency
+[debug] [2025-08-28T21:14:16.563Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:16.563Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:16.563Z] [hosting] hash cache [ZGlzdA] stored for 7 files
+[debug] [2025-08-28T21:14:16.564Z] [hosting][hash queue][FINAL] {"max":27,"min":9,"avg":13.857142857142858,"active":0,"complete":7,"success":7,"errored":0,"retried":0,"total":7,"elapsed":30}
+[debug] [2025-08-28T21:14:16.564Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/b87d505a4e33aed7:populateFiles [none]
+[debug] [2025-08-28T21:14:16.564Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/b87d505a4e33aed7:populateFiles {"files":{"/robots.txt":"1607453ac46595005517bb2a960e3070f20a1f2556a6fa4da68fdec6ccf1666d","/placeholder.svg":"8ee7ca26f189f625f80a6610d755902f46c281280c072a43296c4d9b7445c2f1","/index.html":"57aa69b523caf32fffa73c5bf16cba7b6bdc7a6d2bc810a21f5e2e5bfa000d3d","/assets/index-DMnyuWA8.css":"584c1c127e8f195e340fd963b29ee33041cee26a11a23d834972b277627c82f6","/assets/index-CJagmPLA.js":"913cbb19b751aad3d87720d3e710d4a12757fb359ae27537594a00fc5c556e71","/assets/vendor_firebase-CRZqMu20.js":"93ad54bb5213d711c13de933d219ab60ceb0b208963fc18ca673c66ae6404f2b","/assets/vendor-0ovESEJ9.js":"1333d2c7b8ad307fc4eb706ab727a108ad46682578dca4aa0e2c57c4d36478ec"}}
+[debug] [2025-08-28T21:14:16.789Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/b87d505a4e33aed7:populateFiles 200
+[debug] [2025-08-28T21:14:16.790Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/b87d505a4e33aed7:populateFiles {"uploadRequiredHashes":["57aa69b523caf32fffa73c5bf16cba7b6bdc7a6d2bc810a21f5e2e5bfa000d3d","913cbb19b751aad3d87720d3e710d4a12757fb359ae27537594a00fc5c556e71"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/b87d505a4e33aed7/files"}
+[debug] [2025-08-28T21:14:16.791Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:16.795Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:16.796Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:16.799Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:16.799Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/b87d505a4e33aed7/files/57aa69b523caf32fffa73c5bf16cba7b6bdc7a6d2bc810a21f5e2e5bfa000d3d [none]
+[debug] [2025-08-28T21:14:16.799Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/b87d505a4e33aed7/files/57aa69b523caf32fffa73c5bf16cba7b6bdc7a6d2bc810a21f5e2e5bfa000d3d [stream]
+[debug] [2025-08-28T21:14:16.807Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/b87d505a4e33aed7/files/913cbb19b751aad3d87720d3e710d4a12757fb359ae27537594a00fc5c556e71 [none]
+[debug] [2025-08-28T21:14:16.814Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/b87d505a4e33aed7/files/913cbb19b751aad3d87720d3e710d4a12757fb359ae27537594a00fc5c556e71 [stream]
+[debug] [2025-08-28T21:14:16.821Z] [hosting][populate queue][FINAL] {"max":237,"min":237,"avg":237,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":259}
+[debug] [2025-08-28T21:14:16.822Z] [hosting] uploads queued: 2
+[debug] [2025-08-28T21:14:17.890Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/b87d505a4e33aed7/files/57aa69b523caf32fffa73c5bf16cba7b6bdc7a6d2bc810a21f5e2e5bfa000d3d 200
+[debug] [2025-08-28T21:14:17.892Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/b87d505a4e33aed7/files/57aa69b523caf32fffa73c5bf16cba7b6bdc7a6d2bc810a21f5e2e5bfa000d3d [stream]
+[debug] [2025-08-28T21:14:18.143Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/b87d505a4e33aed7/files/913cbb19b751aad3d87720d3e710d4a12757fb359ae27537594a00fc5c556e71 200
+[debug] [2025-08-28T21:14:18.146Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/b87d505a4e33aed7/files/913cbb19b751aad3d87720d3e710d4a12757fb359ae27537594a00fc5c556e71 [stream]
+[debug] [2025-08-28T21:14:18.147Z] [hosting][upload queue][FINAL] {"max":1351,"min":1102,"avg":1226.5,"active":0,"complete":2,"success":2,"errored":0,"retried":0,"total":2,"elapsed":1357}
+[info] i  hosting: upload complete 
+[info] ✔  hosting[attribution-ebf3a]: file upload complete 
+[debug] [2025-08-28T21:14:18.157Z] [hosting] deploy completed after 1635ms
+[debug] [2025-08-28T21:14:18.157Z] [
+  {
+    "config": {
+      "public": "dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "site": "attribution-ebf3a"
+    },
+    "version": "projects/703404834602/sites/attribution-ebf3a/versions/b87d505a4e33aed7"
+  }
+]
+[info] i  hosting[attribution-ebf3a]: finalizing version... 
+[debug] [2025-08-28T21:14:18.164Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:18.166Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:18.166Z] >>> [apiv2][query] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/b87d505a4e33aed7 updateMask=status%2Cconfig
+[debug] [2025-08-28T21:14:18.167Z] >>> [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/b87d505a4e33aed7 {"status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]}}
+[debug] [2025-08-28T21:14:18.359Z] <<< [apiv2][status] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/b87d505a4e33aed7 200
+[debug] [2025-08-28T21:14:18.360Z] <<< [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/b87d505a4e33aed7 {"name":"projects/703404834602/sites/attribution-ebf3a/versions/b87d505a4e33aed7","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T21:14:16.229474Z","createUser":{"email":"danob2003@gmail.com"},"finalizeTime":"2025-08-28T21:14:18.280398Z","finalizeUser":{"email":"danob2003@gmail.com"}}
+[debug] [2025-08-28T21:14:18.360Z] [hosting] finalized version for attribution-ebf3a:[object Object]
+[info] ✔  hosting[attribution-ebf3a]: version finalized 
+[info] i  hosting[attribution-ebf3a]: releasing new version... 
+[debug] [2025-08-28T21:14:18.360Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:18.360Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:14:18.361Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases versionName=projects%2F703404834602%2Fsites%2Fattribution-ebf3a%2Fversions%2Fb87d505a4e33aed7
+[debug] [2025-08-28T21:14:18.361Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases {}
+[debug] [2025-08-28T21:14:19.100Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases 200
+[debug] [2025-08-28T21:14:19.100Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases {"name":"projects/703404834602/sites/attribution-ebf3a/channels/live/releases/1756415658468000","version":{"name":"projects/703404834602/sites/attribution-ebf3a/versions/b87d505a4e33aed7","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T21:14:16.229474Z","createUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"},"finalizeTime":"2025-08-28T21:14:18.280398Z","finalizeUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}},"type":"DEPLOY","releaseTime":"2025-08-28T21:14:18.468Z","releaseUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}}
+[debug] [2025-08-28T21:14:19.100Z] [hosting] release: {"name":"projects/703404834602/sites/attribution-ebf3a/channels/live/releases/1756415658468000","version":{"name":"projects/703404834602/sites/attribution-ebf3a/versions/b87d505a4e33aed7","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T21:14:16.229474Z","createUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"},"finalizeTime":"2025-08-28T21:14:18.280398Z","finalizeUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}},"type":"DEPLOY","releaseTime":"2025-08-28T21:14:18.468Z","releaseUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}}
+[info] ✔  hosting[attribution-ebf3a]: release complete 
+[info] 
+[info] ✔  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/attribution-ebf3a/overview
+[info] Hosting URL: https://attribution-ebf3a.web.app
+[debug] [2025-08-28T21:20:19.979Z] ----------------------------------------------------------------------
+[debug] [2025-08-28T21:20:19.981Z] Command:       /usr/local/share/nvm/versions/node/v22.17.0/bin/node /home/codespace/nvm/current/bin/firebase deploy --only hosting --project attribution-ebf3a --debug
+[debug] [2025-08-28T21:20:19.981Z] CLI Version:   14.15.0
+[debug] [2025-08-28T21:20:19.981Z] Platform:      linux
+[debug] [2025-08-28T21:20:19.981Z] Node Version:  v22.17.0
+[debug] [2025-08-28T21:20:19.982Z] Time:          Thu Aug 28 2025 21:20:19 GMT+0000 (Coordinated Universal Time)
+[debug] [2025-08-28T21:20:19.982Z] Env Overrides: GITHUB_API_URL, GITHUB_API_URL
+[debug] [2025-08-28T21:20:19.982Z] ----------------------------------------------------------------------
+[debug] 
+[debug] [2025-08-28T21:20:20.230Z] > command requires scopes: ["email","openid","https://www.googleapis.com/auth/cloudplatformprojects.readonly","https://www.googleapis.com/auth/firebase","https://www.googleapis.com/auth/cloud-platform"]
+[debug] [2025-08-28T21:20:20.231Z] > authorizing via signed-in user (danob2003@gmail.com)
+[debug] [2025-08-28T21:20:20.231Z] [iam] checking project attribution-ebf3a for permissions ["firebase.projects.get","firebasehosting.sites.update"]
+[debug] [2025-08-28T21:20:20.232Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:20.232Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:20.233Z] >>> [apiv2][query] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions [none]
+[debug] [2025-08-28T21:20:20.233Z] >>> [apiv2][(partial)header] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions x-goog-quota-user=projects/attribution-ebf3a
+[debug] [2025-08-28T21:20:20.233Z] >>> [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-08-28T21:20:20.854Z] <<< [apiv2][status] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions 200
+[debug] [2025-08-28T21:20:20.854Z] <<< [apiv2][body] POST https://cloudresourcemanager.googleapis.com/v1/projects/attribution-ebf3a:testIamPermissions {"permissions":["firebase.projects.get","firebasehosting.sites.update"]}
+[debug] [2025-08-28T21:20:20.855Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:20.855Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:20.855Z] >>> [apiv2][query] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a [none]
+[debug] [2025-08-28T21:20:21.107Z] <<< [apiv2][status] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a 200
+[debug] [2025-08-28T21:20:21.107Z] <<< [apiv2][body] GET https://firebase.googleapis.com/v1beta1/projects/attribution-ebf3a {"projectId":"attribution-ebf3a","projectNumber":"703404834602","displayName":"attribution","name":"projects/attribution-ebf3a","resources":{"hostingSite":"attribution-ebf3a"},"state":"ACTIVE","etag":"1_2bc3a36b-2b2f-495c-8b5e-a0c8d4ca9c88"}
+[info] 
+[info] === Deploying to 'attribution-ebf3a'...
+[info] 
+[info] i  deploying hosting 
+[debug] [2025-08-28T21:20:21.111Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:21.111Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:21.111Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions [none]
+[debug] [2025-08-28T21:20:21.112Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions {"status":"CREATED","labels":{"deployment-tool":"cli-firebase"}}
+[debug] [2025-08-28T21:20:22.044Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions 200
+[debug] [2025-08-28T21:20:22.044Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions {"name":"projects/703404834602/sites/attribution-ebf3a/versions/21639790dac8eeab","status":"CREATED","config":{},"labels":{"deployment-tool":"cli-firebase"}}
+[info] i  hosting[attribution-ebf3a]: beginning deploy... 
+[info] i  hosting[attribution-ebf3a]: found 7 files in dist 
+[debug] [2025-08-28T21:20:22.055Z] [hosting] uploading with 200 concurrency
+[debug] [2025-08-28T21:20:22.079Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.079Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.079Z] [hosting] hash cache [ZGlzdA] stored for 7 files
+[debug] [2025-08-28T21:20:22.080Z] [hosting][hash queue][FINAL] {"max":20,"min":9,"avg":12,"active":0,"complete":7,"success":7,"errored":0,"retried":0,"total":7,"elapsed":23}
+[debug] [2025-08-28T21:20:22.080Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/21639790dac8eeab:populateFiles [none]
+[debug] [2025-08-28T21:20:22.080Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/21639790dac8eeab:populateFiles {"files":{"/robots.txt":"1607453ac46595005517bb2a960e3070f20a1f2556a6fa4da68fdec6ccf1666d","/index.html":"3d6a1ebb5fc415830fa88c6783e599b5e510f8580e55e5c93a001e96fbdd89e5","/placeholder.svg":"8ee7ca26f189f625f80a6610d755902f46c281280c072a43296c4d9b7445c2f1","/assets/index-C9swVSNJ.css":"be1a298a93d228416934ad53b81114494576ce8769f665f8255884a69b5f94cb","/assets/index-D0hTQQ0J.js":"3d982f3227031713c9bcfc782ce7513bd299a9bec77bb465dba4d65412e5421b","/assets/vendor_firebase-BorpWWFT.js":"98bbe3581c2649f45d8c520d7c8406d8271d071ff9c8acaad0a00deb26d13f7b","/assets/vendor-BwonPuDn.js":"16be984b0794db5f34fcc7610b5a859800af0a0a20176f810d7b5df4e12e2269"}}
+[debug] [2025-08-28T21:20:22.284Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/21639790dac8eeab:populateFiles 200
+[debug] [2025-08-28T21:20:22.284Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/703404834602/sites/attribution-ebf3a/versions/21639790dac8eeab:populateFiles {"uploadRequiredHashes":["be1a298a93d228416934ad53b81114494576ce8769f665f8255884a69b5f94cb","3d982f3227031713c9bcfc782ce7513bd299a9bec77bb465dba4d65412e5421b","98bbe3581c2649f45d8c520d7c8406d8271d071ff9c8acaad0a00deb26d13f7b","16be984b0794db5f34fcc7610b5a859800af0a0a20176f810d7b5df4e12e2269","3d6a1ebb5fc415830fa88c6783e599b5e510f8580e55e5c93a001e96fbdd89e5"],"uploadUrl":"https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files"}
+[debug] [2025-08-28T21:20:22.285Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.285Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.285Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.285Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.286Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.286Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.286Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.286Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.286Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.286Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:22.286Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/be1a298a93d228416934ad53b81114494576ce8769f665f8255884a69b5f94cb [none]
+[debug] [2025-08-28T21:20:22.287Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/be1a298a93d228416934ad53b81114494576ce8769f665f8255884a69b5f94cb [stream]
+[debug] [2025-08-28T21:20:22.288Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/3d982f3227031713c9bcfc782ce7513bd299a9bec77bb465dba4d65412e5421b [none]
+[debug] [2025-08-28T21:20:22.288Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/3d982f3227031713c9bcfc782ce7513bd299a9bec77bb465dba4d65412e5421b [stream]
+[debug] [2025-08-28T21:20:22.289Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/98bbe3581c2649f45d8c520d7c8406d8271d071ff9c8acaad0a00deb26d13f7b [none]
+[debug] [2025-08-28T21:20:22.289Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/98bbe3581c2649f45d8c520d7c8406d8271d071ff9c8acaad0a00deb26d13f7b [stream]
+[debug] [2025-08-28T21:20:22.290Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/16be984b0794db5f34fcc7610b5a859800af0a0a20176f810d7b5df4e12e2269 [none]
+[debug] [2025-08-28T21:20:22.290Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/16be984b0794db5f34fcc7610b5a859800af0a0a20176f810d7b5df4e12e2269 [stream]
+[debug] [2025-08-28T21:20:22.292Z] >>> [apiv2][query] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/3d6a1ebb5fc415830fa88c6783e599b5e510f8580e55e5c93a001e96fbdd89e5 [none]
+[debug] [2025-08-28T21:20:22.292Z] >>> [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/3d6a1ebb5fc415830fa88c6783e599b5e510f8580e55e5c93a001e96fbdd89e5 [stream]
+[debug] [2025-08-28T21:20:22.294Z] [hosting][populate queue][FINAL] {"max":207,"min":207,"avg":207,"active":0,"complete":1,"success":1,"errored":0,"retried":0,"total":1,"elapsed":215}
+[debug] [2025-08-28T21:20:22.294Z] [hosting] uploads queued: 5
+[debug] [2025-08-28T21:20:23.292Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/98bbe3581c2649f45d8c520d7c8406d8271d071ff9c8acaad0a00deb26d13f7b 200
+[debug] [2025-08-28T21:20:23.293Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/98bbe3581c2649f45d8c520d7c8406d8271d071ff9c8acaad0a00deb26d13f7b [stream]
+[debug] [2025-08-28T21:20:23.390Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/3d982f3227031713c9bcfc782ce7513bd299a9bec77bb465dba4d65412e5421b 200
+[debug] [2025-08-28T21:20:23.390Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/3d982f3227031713c9bcfc782ce7513bd299a9bec77bb465dba4d65412e5421b [stream]
+[debug] [2025-08-28T21:20:23.398Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/3d6a1ebb5fc415830fa88c6783e599b5e510f8580e55e5c93a001e96fbdd89e5 200
+[debug] [2025-08-28T21:20:23.399Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/3d6a1ebb5fc415830fa88c6783e599b5e510f8580e55e5c93a001e96fbdd89e5 [stream]
+[debug] [2025-08-28T21:20:23.658Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/be1a298a93d228416934ad53b81114494576ce8769f665f8255884a69b5f94cb 200
+[debug] [2025-08-28T21:20:23.658Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/be1a298a93d228416934ad53b81114494576ce8769f665f8255884a69b5f94cb [stream]
+[debug] [2025-08-28T21:20:23.961Z] <<< [apiv2][status] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/16be984b0794db5f34fcc7610b5a859800af0a0a20176f810d7b5df4e12e2269 200
+[debug] [2025-08-28T21:20:23.962Z] <<< [apiv2][body] POST https://upload-firebasehosting.googleapis.com/upload/sites/attribution-ebf3a/versions/21639790dac8eeab/files/16be984b0794db5f34fcc7610b5a859800af0a0a20176f810d7b5df4e12e2269 [stream]
+[debug] [2025-08-28T21:20:23.962Z] [hosting][upload queue][FINAL] {"max":1676,"min":1008,"avg":1255.4,"active":0,"complete":5,"success":5,"errored":0,"retried":0,"total":5,"elapsed":1678}
+[info] i  hosting: upload complete 
+[info] ✔  hosting[attribution-ebf3a]: file upload complete 
+[debug] [2025-08-28T21:20:23.963Z] [hosting] deploy completed after 1917ms
+[debug] [2025-08-28T21:20:23.963Z] [
+  {
+    "config": {
+      "public": "dist",
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "site": "attribution-ebf3a"
+    },
+    "version": "projects/703404834602/sites/attribution-ebf3a/versions/21639790dac8eeab"
+  }
+]
+[info] i  hosting[attribution-ebf3a]: finalizing version... 
+[debug] [2025-08-28T21:20:23.965Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:23.965Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:23.965Z] >>> [apiv2][query] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/21639790dac8eeab updateMask=status%2Cconfig
+[debug] [2025-08-28T21:20:23.965Z] >>> [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/21639790dac8eeab {"status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]}}
+[debug] [2025-08-28T21:20:24.140Z] <<< [apiv2][status] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/21639790dac8eeab 200
+[debug] [2025-08-28T21:20:24.140Z] <<< [apiv2][body] PATCH https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/versions/21639790dac8eeab {"name":"projects/703404834602/sites/attribution-ebf3a/versions/21639790dac8eeab","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T21:20:21.749899Z","createUser":{"email":"danob2003@gmail.com"},"finalizeTime":"2025-08-28T21:20:24.060227Z","finalizeUser":{"email":"danob2003@gmail.com"}}
+[debug] [2025-08-28T21:20:24.140Z] [hosting] finalized version for attribution-ebf3a:[object Object]
+[info] ✔  hosting[attribution-ebf3a]: version finalized 
+[info] i  hosting[attribution-ebf3a]: releasing new version... 
+[debug] [2025-08-28T21:20:24.141Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:24.141Z] Checked if tokens are valid: true, expires at: 1756419253625
+[debug] [2025-08-28T21:20:24.141Z] >>> [apiv2][query] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases versionName=projects%2F703404834602%2Fsites%2Fattribution-ebf3a%2Fversions%2F21639790dac8eeab
+[debug] [2025-08-28T21:20:24.141Z] >>> [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases {}
+[debug] [2025-08-28T21:20:24.380Z] <<< [apiv2][status] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases 200
+[debug] [2025-08-28T21:20:24.380Z] <<< [apiv2][body] POST https://firebasehosting.googleapis.com/v1beta1/projects/-/sites/attribution-ebf3a/channels/live/releases {"name":"projects/703404834602/sites/attribution-ebf3a/channels/live/releases/1756416023751000","version":{"name":"projects/703404834602/sites/attribution-ebf3a/versions/21639790dac8eeab","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T21:20:21.749899Z","createUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"},"finalizeTime":"2025-08-28T21:20:24.060227Z","finalizeUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}},"type":"DEPLOY","releaseTime":"2025-08-28T21:20:23.751Z","releaseUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}}
+[debug] [2025-08-28T21:20:24.380Z] [hosting] release: {"name":"projects/703404834602/sites/attribution-ebf3a/channels/live/releases/1756416023751000","version":{"name":"projects/703404834602/sites/attribution-ebf3a/versions/21639790dac8eeab","status":"FINALIZED","config":{"rewrites":[{"glob":"**","path":"/index.html"}]},"labels":{"deployment-tool":"cli-firebase"},"createTime":"2025-08-28T21:20:21.749899Z","createUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"},"finalizeTime":"2025-08-28T21:20:24.060227Z","finalizeUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}},"type":"DEPLOY","releaseTime":"2025-08-28T21:20:23.751Z","releaseUser":{"email":"danob2003@gmail.com","imageUrl":"https://lh3.googleusercontent.com/a/ACg8ocKR2Yv_JPX9Wt_eBfva_hWtMNVGIXzlzRAT81YsRDs2SKhIrZgO"}}
+[info] ✔  hosting[attribution-ebf3a]: release complete 
+[info] 
+[info] ✔  Deploy complete! 
+[info] 
+[info] Project Console: https://console.firebase.google.com/project/attribution-ebf3a/overview
+[info] Hosting URL: https://attribution-ebf3a.web.app

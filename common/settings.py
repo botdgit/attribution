@@ -1,25 +1,55 @@
-"""Centralized application settings using Pydantic BaseSettings.
-
-Provides normalized environment variable handling across services.
-"""
-from functools import lru_cache
-from pydantic import BaseSettings, Field
+"""Centralized settings and configuration."""
+import os
 from typing import Optional
+from dataclasses import dataclass
 
 
-class Settings(BaseSettings):
-    gcp_project: Optional[str] = Field(None, env=["GCP_PROJECT", "GOOGLE_CLOUD_PROJECT"])  # unify
-    pubsub_topic_raw: str = Field("raw-events", env="PUBSUB_TOPIC")
-    uploads_bucket: Optional[str] = Field(None, env="UPLOADS_BUCKET")
-    ingestion_api_key: Optional[str] = Field(None, env="INGESTION_API_KEY")
-    result_dataset: str = Field("cfap_analytics", env="RESULT_DATASET")
-    analysis_run_topic: str = Field("run-analysis-jobs", env="ANALYSIS_RUN_TOPIC")
-    analysis_run_subscription: str = Field("run-analysis-worker", env="ANALYSIS_RUN_SUBSCRIPTION")
+@dataclass
+class Settings:
+    """Application settings."""
+    
+    # GCP Settings
+    gcp_project: str = os.getenv("GCP_PROJECT", "cfap-platform-dev")
+    bigquery_dataset: str = os.getenv("BIGQUERY_DATASET", "cfap_analytics")
+    
+    # Pub/Sub Settings
+    analysis_topic: str = os.getenv("ANALYSIS_TOPIC", "run-analysis-jobs")
+    analysis_subscription: str = os.getenv("ANALYSIS_SUBSCRIPTION", "run-analysis-worker")
+    
+    # Firebase Settings
+    firebase_project: str = os.getenv("FIREBASE_PROJECT", "cfap-platform-dev")
+    
+    # Database Settings
+    db_host: str = os.getenv("DB_HOST", "localhost")
+    db_port: int = int(os.getenv("DB_PORT", "5432"))
+    db_name: str = os.getenv("DB_NAME", "cfap")
+    db_user: str = os.getenv("DB_USER", "cfap")
+    db_password: str = os.getenv("DB_PASSWORD", "")
+    
+    # Model Registry Settings
+    model_registry_table: str = "causal_model_registry"
+    results_table: str = "lift_analysis_results"
+    job_status_table: str = "job_status"
+    
+    # Environment
+    environment: str = os.getenv("ENVIRONMENT", "development")
+    debug: bool = os.getenv("DEBUG", "false").lower() == "true"
+    
+    @property
+    def is_production(self) -> bool:
+        """Check if running in production."""
+        return self.environment.lower() == "production"
+    
+    @property
+    def database_url(self) -> str:
+        """Get database connection URL."""
+        return f"postgresql://{self.db_user}:{self.db_password}@{self.db_host}:{self.db_port}/{self.db_name}"
 
-    class Config:
-        case_sensitive = False
+
+# Global settings instance
+settings = Settings()
 
 
-@lru_cache
-def get_settings() -> Settings:
-    return Settings()
+def get_bq_table_spec(project: str, dataset: str, table: str) -> str:
+    """Get fully qualified BigQuery table specification."""
+    return f"{project}.{dataset}.{table}"

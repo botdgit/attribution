@@ -22,30 +22,58 @@ wheels/
 MANIFEST
 
 # Virtual environments
-.venv/
-venv/
-ENV/
-env/
-
-# IDE
-.vscode/
-.idea/
-*.swp
-*.swo
-
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-
-# Environment variables
 .env
 .env.local
 .env.development.local
 .env.test.local
 .env.production.local
+.venv
+.venv/
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+*.log
+.log
+logs/
+uvicorn.log
+
+# Google Cloud
+.gcloud/
+.gcp/
+credentials.json
+service-account.json
+service-account-key.json
 
 # Node.js (for frontend)
 node_modules/
@@ -59,13 +87,25 @@ firebase-debug.log
 
 # Terraform
 *.tfstate
+*.tfstate.*
 *.tfstate.backup
 .terraform/
 .terraform.lock.hcl
 
-# Google Cloud
-.gcp/
-service-account-key.json
+# Temporary files
+*.tmp
+*.temp
+/tmp/
+
+# Data files
+*.csv
+*.xlsx
+*.json
+*.parquet
 
 # Application specific
+.secrets/
+.credentials/
+config.local.json
 .shopify_tokens.json
+.test_state.json

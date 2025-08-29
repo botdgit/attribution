@@ -1,31 +1,42 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
+import fetchWithAuth from "../utils/fetchWithAuth";
 
 export default function FileUpload() {
-  const [file, setFile] = useState(null);
-  const [status, setStatus] = useState('idle');
+	const [file, setFile] = useState(null);
+	const [status, setStatus] = useState("");
 
-  const handleFile = (e) => {
-    setFile(e.target.files[0]);
-  }
+	async function handleUpload(e) {
+		e.preventDefault();
+		if (!file) return;
+		setStatus("Uploading...");
+		try {
+			// If ingestion endpoint exists, use it. Otherwise call a demo analysis endpoint.
+			const form = new FormData();
+			form.append("file", file);
+			const base = import.meta.env.VITE_BACKEND_URL || "";
+			const ingestUrl = "/api/ingest";
+			// Try ingest first
+			try {
+				await fetchWithAuth(ingestUrl, { method: "POST", body: form, headers: {} });
+				setStatus("Uploaded to ingest endpoint");
+				return;
+			} catch (err) {
+				// fallback to calling a sample analysis endpoint
+			}
 
-  const upload = async () => {
-    if (!file) return;
-    setStatus('uploading');
-    const res = await fetch('/v1/uploads/url', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ filename: file.name }) });
-    const body = await res.json();
-    const uploadUrl = body.url;
-    const objectPath = body.object;
-    await fetch(uploadUrl, { method: 'PUT', body: file, headers: { 'Content-Type': 'application/octet-stream' } });
-    setStatus('done');
-    // optional: inform backend to start processing (Cloud Function listens to bucket notification)
-    console.log('uploaded to', objectPath);
-  }
+			// Fallback: call DID analysis with a dummy campaign id to trigger demo
+			await fetchWithAuth("/api/analysis/did", { method: "POST", body: JSON.stringify({ campaign_id: "demo-campaign" }) });
+			setStatus("Processed by analysis endpoint (demo)");
+		} catch (err) {
+			setStatus(`Error: ${err.message}`);
+		}
+	}
 
-  return (
-    <div>
-      <input type="file" accept=".csv" onChange={handleFile} />
-      <button onClick={upload} disabled={!file}>Upload CSV</button>
-      <div>Status: {status}</div>
-    </div>
-  )
+	return <div>
+		<form onSubmit={handleUpload}>
+			<input type="file" onChange={e => setFile(e.target.files?.[0] || null)} />
+			<button type="submit">Upload</button>
+		</form>
+		<div>{status}</div>
+	</div>;
 }

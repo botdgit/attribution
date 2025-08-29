@@ -5,3 +5,5 @@ pydantic
 python-dotenv
 google-cloud-secret-manager
 requests
+firebase-admin
+google-auth

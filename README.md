@@ -1,151 +1,195 @@
-# attribution
+docker build -t cfap-backend:local -f backend/Dockerfile backend
+docker run -p 8080:8080 cfap-backend:local
 
-This repository contains a minimal scaffold for the CFAP platform described in the project plan.
+# CFAP (Causal Funnel Attribution Platform)
 
-What I added:
-- `terraform/` - Terraform scaffold to create a storage bucket, BigQuery dataset, and a Cloud SQL instance.
-- `backend/` - FastAPI app, auth, analysis, DB helper, Dockerfile and requirements.
-- `ingestion/` - ingestion helper that uploads JSON to GCS and reads secrets from Secret Manager.
-- `schemas/` - BigQuery schema for sessions.
-- `retraining_job/` - simple retrain script and Dockerfile for Cloud Run Job.
-- `.github/workflows/deploy.yml` - CI skeleton for deploying backend and frontend.
+Unified ingestion, causal experimentation & attribution, and actionable reporting for growth & marketing teams.
 
-Quick start (local development):
 
-1. Python backend (virtualenv recommended):
+## 1. Product Overview
 
+CFAP lets teams CONNECT event & commerce data, ANALYSE causal lift & attribution using transparent models, and ACT on insights via dashboards & downstream activations. The platform emphasises:
+- Trust (open, reproducible causal models)
+- Speed (streaming ingestion + incremental analysis)
+- Actionability (clear lift & ROI surfaces, export + API)
+- Extensibility (plugin model registry & model interface)
+
+## 2. High‑Level Architecture
+
+Flow (left → right):
+Clients & Sources → Ingestion API / Pub/Sub → Dataflow (Beam) normalization → BigQuery canonical tables → Control Plane (run requests) → Causal Engine Worker (models) → Results / Registry Tables → Reporting API → Frontend UI.
+
+Main Pillars:
+1. Ingestion Layer: authenticated JSON events + batch uploads; idempotent BigQuery writes.
+2. Data Processing: Beam pipeline to standard events schema; enrichment hooks (extensible).
+3. Causal Engine: pluggable model interface (`causal_engine.models.*`) with current DID implementation.
+4. Control Plane API: schedules/queues analyses; stores job status.
+5. Reporting API: read-only aggregation & surfacing of model outcomes / metrics.
+6. Frontend: Vite/React app with Firebase auth and reporting & run triggers.
+7. Infrastructure as Code: Terraform for topics, subscriptions, datasets, tables, service accounts.
+
+## 3. Core Data Assets (BigQuery)
+- `standard_events` (canonical raw events)
+- `lift_analysis_results` (per model run outputs: effect, confidence, metadata)
+- `job_status` (orchestration lifecycle + timestamps)
+- `causal_model_registry` (planned: model definitions, versions, lineage)
+
+## 4. Key Services & Packages
+| Component | Path | Purpose |
+|-----------|------|---------|
+| Ingestion API | `ingestion_api/` | Accept client events, batch publish to Pub/Sub, signed upload URLs |
+| Ingestion Subscriber | `ingestion_subscriber/` | Pub/Sub push → BigQuery (idempotent) |
+| Dataflow Pipeline | `dataflow/` | Beam transforms / enrichment (batch & streaming) |
+| Control Plane API | `control_plane_api/` | `POST /v1/analysis/run` enqueue model runs |
+| Causal Engine Worker | `causal_engine/worker.py` | Consume run jobs, execute model, persist results & status |
+| Causal Models | `causal_engine/models/` | Implement model contract (currently DID) |
+| Reporting API | `reporting_api/` or `backend/reporting_api/` | Read & aggregate results |
+| Frontend | `frontend/` | React UI, auth, dashboards, run controls |
+| Common Auth & Settings | `common/` | Firebase token verification & centralized settings |
+| Infra | `terraform/` | Topics, subs, datasets, tables, service accounts |
+
+## 5. Data & Job Lifecycle
+1. Client emits event to Ingestion API (Firebase auth) OR uploads batch to GCS (signed URL).
+2. API publishes normalized message to Pub/Sub with `insertId` for idempotency.
+3. Subscriber writes rows to `standard_events` (dedup by insertId). (Beam pipeline may also feed/enrich.)
+4. User (or schedule) hits Control Plane `POST /v1/analysis/run` specifying `model_name` + params.
+5. Pub/Sub delivers job to Worker. Worker loads config & parameters, runs model (DID).
+6. Worker writes lift metrics to `lift_analysis_results`, metadata to `job_status` (+ model registry soon).
+7. Reporting API exposes aggregated metrics / health; Frontend renders charts and run status.
+
+## 6. Getting Started (Local)
+Prereqs: Python 3.12, Node 18+, gcloud auth (for GCP resources), Docker (optional), Firebase CLI (optional).
+
+### 6.1 Create & Activate Virtualenv
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 pip install -r backend/requirements.txt
-uvicorn backend.main:app --reload --port 8080
 ```
 
-2. Build backend Docker image (for local testing):
-
+### 6.2 Run Ingestion & Control Plane (Example)
 ```bash
-docker build -t cfap-backend:local -f backend/Dockerfile backend
-docker run -p 8080:8080 cfap-backend:local
+pip install -r ingestion_api/requirements.txt || true  # if separate
+uvicorn ingestion_api.app:app --port 8085 --reload &
+pip install -r control_plane_api/requirements.txt
+uvicorn control_plane_api.app:app --port 8082 --reload &
 ```
 
-3. Terraform (requires gcloud auth and a project id):
+### 6.3 Run Worker
+```bash
+export GCP_PROJECT=your-project
+pip install -r backend/requirements.txt
+python -m causal_engine.worker
+```
 
+### 6.4 Trigger a Model Run
+```bash
+curl -X POST localhost:8082/v1/analysis/run \
+  -H 'Content-Type: application/json' \
+  -d '{"model_name":"did","params":{"campaign_id":"xyz-123"}}'
+```
+
+### 6.5 Frontend Dev
+```bash
+cd frontend
+npm ci
+npm run dev
+```
+If using Firebase auth create `frontend/.env` with the `VITE_FIREBASE_*` variables (see below).
+
+### 6.6 Terraform (Provision Core Infra)
 ```bash
 cd terraform
 terraform init
 terraform apply -var="project_id=cfap-platform-dev"
 ```
 
-Notes:
-- This scaffold implements the structural pieces in the CFAP plan. Many production details
-  (workload identity federation, exact IAM bindings, Cloud Run configurations, BigQuery scheduled queries,
-  and training model implementation) are intentionally left as TODOs so you can wire them to your security
-  posture and data shapes.
-# Reporting API (local dev)
+## 7. Configuration & Environment
+Centralized via `common/settings.py` (Pydantic). Key variables:
+- `GCP_PROJECT` / `GOOGLE_CLOUD_PROJECT`
+- `RESULT_DATASET` (default `cfap_analytics`)
+- `ANALYSIS_RUN_TOPIC`, `ANALYSIS_RUN_SUBSCRIPTION`
+- `FIREBASE_PROJECT_ID` (auth checks)
+- `CFAP_TEST_MODE` (enables local fallbacks / synthetic data)
 
-- The reporting API is a small FastAPI service at `backend/reporting_api`.
-- To run locally for frontend development, install requirements and run:
-  - `pip install -r backend/reporting_api/requirements.txt`
-  - `RUNNING_LOCAL=true uvicorn backend.reporting_api.app:app --port 8081 --host 0.0.0.0`
-- The frontend dev server proxies `/api/reporting` to `http://localhost:8081` by default.
-# Causal Engine & Control Plane
+Frontend Firebase `.env` template:
+```
+VITE_FIREBASE_API_KEY=xxx
+VITE_FIREBASE_AUTH_DOMAIN=xxx.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=xxx
+VITE_FIREBASE_STORAGE_BUCKET=xxx.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+VITE_FIREBASE_MEASUREMENT_ID=...
+```
 
-This repository now includes a minimal Causal Engine and Control Plane to run analyses end-to-end.
+## 8. Causal Models
+Model contract (simplified):
+- Input: parameter dict, BigQuery client handle, project & dataset, time bounds / identifiers.
+- Output: effect size(s), confidence interval(s), diagnostics metadata, persisted row(s) in `lift_analysis_results`.
+- Registration: (planned) `causal_model_registry` row with model_name, version, hyperparams, code ref.
 
-Services:
-- `control_plane_api` — exposes `POST /v1/analysis/run` to enqueue analysis jobs to Pub/Sub (`run-analysis-jobs`).
-- `causal_engine.worker` — a worker that subscribes to `run-analysis-worker` subscription, runs requested models (currently `did`) and writes results to BigQuery (`lift_analysis_results`).
+Current implemented: Difference‑in‑Differences (DID) using statsmodels OLS.
 
-Running the control plane locally:
+Planned additions: CUPED uplift, Bayesian hierarchical lift, Synthetic Control, Shapley multi-touch attribution.
 
+## 9. Security & Auth
+- Primary auth: Firebase ID token (all ingestion & control operations).
+- API key fallback: legacy path (will be disabled in production mode).
+- Idempotency: `insertId` per event row.
+- Principle of Least Privilege: separate service accounts for worker vs ingestion.
+- To do: signed model artifacts, HMAC option, audit logging, structured log & metrics exporter.
+
+## 10. Observability (Current / Planned)
+Current: basic Python logging.
+Planned: structured JSON logs, Prometheus metrics endpoint, BigQuery cost guardrails (query bytes), run SLA dashboards.
+
+## 11. CI/CD
+GitHub Actions workflow (skeleton) will cover:
+- Lint & Format (ruff / black)
+- Type Check (mypy)
+- Tests (pytest)
+- Frontend build & artifact upload
+- Terraform plan (manual apply gate)
+
+## 12. Directory Map (Selected)
+```
+backend/                FastAPI legacy backend & analysis helpers
+control_plane_api/      Run scheduling API
+causal_engine/          Model base + worker + implementations
+ingestion_api/          Client event ingestion
+ingestion_subscriber/   Pub/Sub push → BigQuery writer
+dataflow/               Beam pipeline transforms & tests
+reporting_api/          Read-only analytics service
+frontend/               React + Vite app
+terraform/              IaC definitions & table schemas
+schemas/                (Legacy) raw schema references (to be consolidated)
+common/                 Shared auth + settings
+connectors/             Source connectors (e.g., Shopify)
+retraining_job/         Batch retraining / scheduled job scaffold
+```
+
+## 13. Local Firebase Login
+Interactive:
 ```bash
-pip install -r control_plane_api/requirements.txt
-export GCP_PROJECT=your-project-id
-uvicorn control_plane_api.app:app --port 8082 --host 0.0.0.0
+./scripts/firebase_login.sh
 ```
-
-Run the worker locally (requires ADC or service account credentials with Pub/Sub and BigQuery access):
-
+CI token (store in `FIREBASE_TOKEN` secret):
 ```bash
-pip install -r backend/requirements.txt
-python -m causal_engine.worker
+./scripts/firebase_login.sh --ci
 ```
 
-Trigger an analysis (example):
+## 14. Roadmap Snapshot
+Phase 0 Hardening (WIP): auth enforcement everywhere, structured logging, model registry table, CI pipeline.
+Phase 1 Attribution Expansion: multi-touch path modeling, experiment grouping, partial funnel attribution.
+Phase 2 Experiment Intelligence: automated power calculation, pre-check guardrails, sequential monitoring.
+Phase 3 Activation: push segments / lift outcomes to ad platforms & CRM, real-time audiences.
 
-```bash
-curl -X POST localhost:8082/v1/analysis/run -H "Content-Type: application/json" -d '{"model_name":"did","params":{"campaign_id":"xyz-123"}}'
-```
+## 15. Contributing
+See `CONTRIBUTING.md` (environment setup, style, commit conventions). PRs should include: description, test coverage (or rationale), and update docs if public behavior changes.
 
-Terraform notes:
-- The Terraform now creates:
-  - `google_pubsub_topic.run-analysis-jobs` and `google_pubsub_subscription.run-analysis-worker`.
-  - `google_service_account.causal_engine_worker` with Pub/Sub subscriber and BigQuery editor roles.
-  - `google_bigquery_table.lift_analysis_results` and `google_bigquery_table.job_status`.
+## 16. Support / Questions
+Open an issue with detailed context (component, expected vs actual, logs). Include model name + job id for analysis questions.
 
-Environment variables for worker and control plane:
-- `GCP_PROJECT` or `GOOGLE_CLOUD_PROJECT` — project id
-- `ANALYSIS_RUN_TOPIC` / `ANALYSIS_RUN_SUBSCRIPTION` — Pub/Sub names
-- `RESULT_DATASET` — BigQuery dataset name (default `cfap_analytics`)
-
-### Firebase login
-
-To interact with Firebase (hosting, deploys) you can login locally or generate a CI token.
-
-- Interactive (opens a browser):
-
-  ./scripts/firebase_login.sh
-
-- CI token (copy the output and store in GitHub secret `FIREBASE_TOKEN`):
-
-  ./scripts/firebase_login.sh --ci
-
-The script uses `npx firebase-tools` so Node.js must be installed.
-
-# attribution
-
-Frontend Firebase configuration
-
-The frontend reads Firebase config from Vite env variables prefixed with `VITE_` at build time. To enable Firebase analytics or auth in development, create a `.env` file in the `frontend` directory with the following values:
-
-```
-VITE_FIREBASE_API_KEY=your_api_key
-VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your_project_id
-VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your_messaging_sender_id
-VITE_FIREBASE_APP_ID=your_app_id
-VITE_FIREBASE_MEASUREMENT_ID=your_measurement_id
-```
-
-Then run the frontend dev server from `frontend/`:
-
-```bash
-cd frontend
-npm ci
-npm run dev
-```
-
-If Vite env variables are not set, the frontend will continue to work without Firebase.
-
-Example GitHub Actions production build snippet
-
-Below is a minimal example showing how to inject Firebase config stored as GitHub Secrets into the frontend build step. Add the secrets `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_STORAGE_BUCKET`, `VITE_FIREBASE_MESSAGING_SENDER_ID`, `VITE_FIREBASE_APP_ID`, and `VITE_FIREBASE_MEASUREMENT_ID` to your repository.
-
-```yaml
-- name: Build frontend
-  working-directory: frontend
-  env:
-    VITE_FIREBASE_API_KEY: ${{ secrets.VITE_FIREBASE_API_KEY }}
-    VITE_FIREBASE_AUTH_DOMAIN: ${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}
-    VITE_FIREBASE_PROJECT_ID: ${{ secrets.VITE_FIREBASE_PROJECT_ID }}
-    VITE_FIREBASE_STORAGE_BUCKET: ${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}
-    VITE_FIREBASE_MESSAGING_SENDER_ID: ${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}
-    VITE_FIREBASE_APP_ID: ${{ secrets.VITE_FIREBASE_APP_ID }}
-    VITE_FIREBASE_MEASUREMENT_ID: ${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}
-  run: |
-    npm ci
-    npm run build
-```
-
-This ensures the built static files include the correct runtime config without checking secrets into source control.
+---
+This repository is an evolving reference implementation; adapt the Terraform & IAM to your org’s security and data governance standards before production use.

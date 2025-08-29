@@ -26,6 +26,79 @@ resource "google_bigquery_dataset" "cfap_analytics" {
   location   = "US"
 }
 
+# Partitioned standard events table (time-partitioned by DATE(timestamp))
+resource "google_bigquery_table" "standard_events" {
+  dataset_id = google_bigquery_dataset.cfap_analytics.dataset_id
+  project    = var.project_id
+  table_id   = "standard_events"
+
+  time_partitioning {
+    type = "DAY"
+    field = "timestamp"
+  }
+
+  clustering {
+    fields = ["event_type", "user_anonymous_id"]
+  }
+
+  schema = file("${path.module}/sql/standard_events_schema.json")
+}
+
+# Lift analysis results table for causal engine outputs
+resource "google_bigquery_table" "lift_analysis_results" {
+  dataset_id = google_bigquery_dataset.cfap_analytics.dataset_id
+  project    = var.project_id
+  table_id   = "lift_analysis_results"
+
+  time_partitioning {
+    type  = "DAY"
+    field = "analysis_timestamp"
+  }
+
+  schema = file("${path.module}/schemas/lift_analysis_results_schema.json")
+}
+
+# Pub/Sub topic & subscription for triggering analysis jobs
+resource "google_pubsub_topic" "run_analysis_jobs" {
+  name    = "run-analysis-jobs"
+  project = var.project_id
+}
+
+resource "google_pubsub_subscription" "run_analysis_worker" {
+  name  = "run-analysis-worker"
+  topic = google_pubsub_topic.run_analysis_jobs.name
+  project = var.project_id
+  ack_deadline_seconds = 60
+}
+
+# Service account for the causal engine worker
+resource "google_service_account" "causal_engine_worker" {
+  account_id   = "causal-engine-worker"
+  display_name = "Causal Engine Worker"
+}
+
+# Grant Pub/Sub subscriber and BigQuery editor to the worker SA
+resource "google_project_iam_member" "worker_pubsub_subscriber" {
+  project = var.project_id
+  role    = "roles/pubsub.subscriber"
+  member  = "serviceAccount:${google_service_account.causal_engine_worker.email}"
+}
+
+resource "google_project_iam_member" "worker_bq_editor" {
+  project = var.project_id
+  role    = "roles/bigquery.dataEditor"
+  member  = "serviceAccount:${google_service_account.causal_engine_worker.email}"
+}
+
+# Job status table for tracking analysis jobs
+resource "google_bigquery_table" "job_status" {
+  dataset_id = google_bigquery_dataset.cfap_analytics.dataset_id
+  project    = var.project_id
+  table_id   = "job_status"
+
+  schema = file("${path.module}/schemas/job_status_schema.json")
+}
+
 # Metadata & Benchmark Database
 resource "google_sql_database_instance" "benchmark_db" {
   name             = "cfap-benchmark-db"
@@ -98,5 +171,15 @@ resource "google_service_account_iam_member" "ci_wif_binding" {
   service_account_id = google_service_account.ci_cd_deployer.name
   role               = "roles/iam.workloadIdentityUser"
   member             = "principal://iam.googleapis.com/projects/${data.google_project.project.number}/locations/global/workloadIdentityPools/${google_iam_workload_identity_pool.pool.workload_identity_pool_id}/providers/${google_iam_workload_identity_pool_provider.provider.provider_id}"
+}
+
+# Memorystore Redis instance for reporting cache
+resource "google_redis_instance" "reporting_redis" {
+  name           = "cfap-reporting-redis"
+  tier           = "BASIC"
+  memory_size_gb = 1
+  region         = var.region
+  transit_encryption_mode = "SERVER_AUTHENTICATION"
+  authorized_network = "default"
 }
 

@@ -1,0 +1,206 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Modern Attribution Platform Design System - Enhanced UX */
+
+@layer base {
+  :root {
+    --background: 218 15% 98%;
+    --foreground: 218 25% 8%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 218 25% 8%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 218 25% 8%;
+
+    --primary: 224 100% 58%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 224 100% 68%;
+    --primary-light: 224 90% 95%;
+
+    --secondary: 218 12% 93%;
+    --secondary-foreground: 218 25% 15%;
+
+    --muted: 218 12% 95%;
+    --muted-foreground: 218 15% 40%;
+
+    --accent: 180 100% 42%;
+    --accent-foreground: 0 0% 100%;
+    --accent-light: 180 75% 92%;
+
+    --destructive: 0 85% 58%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 218 20% 88%;
+    --input: 218 20% 90%;
+    --ring: 224 100% 58%;
+
+    /* Enhanced gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(224 100% 58%), hsl(224 100% 68%));
+    --gradient-secondary: linear-gradient(135deg, hsl(218 12% 95%), hsl(0 0% 100%));
+    --gradient-accent: linear-gradient(135deg, hsl(180 100% 42%), hsl(180 85% 52%));
+    --gradient-hero: linear-gradient(135deg, hsl(224 35% 10%) 0%, hsl(224 60% 20%) 50%, hsl(224 80% 30%) 100%);
+    --gradient-glass: linear-gradient(135deg, hsla(0 0% 100% / 0.1), hsla(0 0% 100% / 0.05));
+    
+    /* Elevated shadows with better contrast */
+    --shadow-subtle: 0 1px 3px hsla(218 25% 8% / 0.08);
+    --shadow-soft: 0 4px 20px hsla(218 25% 8% / 0.12);
+    --shadow-medium: 0 8px 32px hsla(218 25% 8% / 0.16);
+    --shadow-strong: 0 24px 48px hsla(218 25% 8% / 0.24);
+    --shadow-elegant: 0 32px 64px hsla(224 100% 58% / 0.15);
+    
+    /* Refined transitions */
+    --transition-smooth: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    --transition-bounce: all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+    --transition-spring: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+    --radius: 1rem;
+    --radius-lg: 1.5rem;
+    --radius-xl: 2rem;
+
+    --sidebar-background: 218 15% 98%;
+    --sidebar-foreground: 218 25% 15%;
+    --sidebar-primary: 224 100% 58%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 218 12% 95%;
+    --sidebar-accent-foreground: 218 25% 15%;
+    --sidebar-border: 218 20% 88%;
+    --sidebar-ring: 224 100% 58%;
+  }
+
+  .dark {
+    --background: 224 30% 4%;
+    --foreground: 210 40% 95%;
+
+    --card: 224 25% 6%;
+    --card-foreground: 210 40% 95%;
+
+    --popover: 224 25% 6%;
+    --popover-foreground: 210 40% 95%;
+
+    --primary: 224 100% 65%;
+    --primary-foreground: 224 30% 4%;
+    --primary-glow: 224 100% 75%;
+    --primary-light: 224 60% 15%;
+
+    --secondary: 224 20% 12%;
+    --secondary-foreground: 210 40% 90%;
+
+    --muted: 224 20% 10%;
+    --muted-foreground: 215 20% 60%;
+
+    --accent: 180 100% 50%;
+    --accent-foreground: 224 30% 4%;
+    --accent-light: 180 40% 15%;
+
+    --destructive: 0 75% 60%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 224 20% 18%;
+    --input: 224 20% 15%;
+    --ring: 224 100% 65%;
+
+    /* Dark mode gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(224 100% 65%), hsl(224 100% 75%));
+    --gradient-secondary: linear-gradient(135deg, hsl(224 20% 10%), hsl(224 25% 6%));
+    --gradient-accent: linear-gradient(135deg, hsl(180 100% 50%), hsl(180 85% 60%));
+    --gradient-hero: linear-gradient(135deg, hsl(224 40% 3%) 0%, hsl(224 35% 8%) 50%, hsl(224 50% 15%) 100%);
+    --gradient-glass: linear-gradient(135deg, hsla(0 0% 100% / 0.05), hsla(0 0% 100% / 0.02));
+
+    /* Dark mode shadows */
+    --shadow-subtle: 0 1px 3px hsla(0 0% 0% / 0.3);
+    --shadow-soft: 0 4px 20px hsla(0 0% 0% / 0.4);
+    --shadow-medium: 0 8px 32px hsla(0 0% 0% / 0.5);
+    --shadow-strong: 0 24px 48px hsla(0 0% 0% / 0.6);
+    --shadow-elegant: 0 32px 64px hsla(224 100% 65% / 0.2);
+
+    --sidebar-background: 224 25% 6%;
+    --sidebar-foreground: 210 40% 90%;
+    --sidebar-primary: 224 100% 65%;
+    --sidebar-primary-foreground: 224 30% 4%;
+    --sidebar-accent: 224 20% 12%;
+    --sidebar-accent-foreground: 210 40% 90%;
+    --sidebar-border: 224 20% 18%;
+    --sidebar-ring: 224 100% 65%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border transition-all duration-200 ease-out;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "rlig" 1, "calt" 1;
+  }
+
+  /* Enhanced focus styles */
+  *:focus-visible {
+    @apply outline-none ring-2 ring-ring ring-offset-2 ring-offset-background transition-all duration-200;
+  }
+
+  /* Smooth scrolling */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Better text rendering */
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-semibold tracking-tight;
+  }
+
+  /* Glass morphism utility */
+  .glass {
+    background: var(--gradient-glass);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid hsla(0 0% 100% / 0.1);
+  }
+
+  /* Enhanced button styles */
+  .btn-primary {
+    @apply bg-gradient-primary text-primary-foreground shadow-medium hover:shadow-strong;
+    @apply rounded-full transition-all duration-300 ease-out;
+  }
+
+  /* Card enhancements */
+  .card-enhanced {
+    @apply bg-card shadow-soft hover:shadow-medium transition-all duration-300 ease-out;
+    @apply rounded-2xl border border-border/50;
+  }
+
+  /* Floating action button */
+  .fab {
+    @apply fixed bottom-6 right-6 w-14 h-14 rounded-full;
+    @apply bg-gradient-primary text-primary-foreground shadow-strong;
+    @apply hover:scale-110 transition-all duration-300 ease-out z-50;
+  }
+}
+
+@layer components {
+  /* Modern input styles */
+  .input-modern {
+    @apply bg-card border-border rounded-2xl px-4 py-3;
+    @apply focus:border-ring focus:ring-4 focus:ring-ring/10;
+    @apply transition-all duration-200 ease-out placeholder:text-muted-foreground;
+  }
+
+  /* Elevated navigation */
+  .nav-elevated {
+    @apply bg-card/80 backdrop-blur-lg border-b border-border/50;
+    @apply shadow-soft sticky top-0 z-40;
+  }
+
+  /* Status indicators */
+  .status-dot {
+    @apply w-2 h-2 rounded-full animate-pulse;
+  }
+  
+  .status-success { @apply bg-green-500; }
+  .status-warning { @apply bg-yellow-500; }
+  .status-error { @apply bg-red-500; }
+  .status-info { @apply bg-blue-500; }
+}

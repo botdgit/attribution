@@ -13,3 +13,23 @@ output "workload_identity_provider" {
 output "project_number" {
   value = data.google_project.project.number
 }
+
+output "memorystore_host" {
+  value = google_redis_instance.reporting_redis.host
+}
+
+output "memorystore_port" {
+  value = google_redis_instance.reporting_redis.port
+}
+
+output "run_analysis_topic" {
+  value = google_pubsub_topic.run_analysis_jobs.name
+}
+
+output "run_analysis_subscription" {
+  value = google_pubsub_subscription.run_analysis_worker.name
+}
+
+output "causal_engine_worker_sa" {
+  value = google_service_account.causal_engine_worker.email
+}

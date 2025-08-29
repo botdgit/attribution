@@ -12,10 +12,40 @@ on:
 
 env:
   REGION: us-central1
+  DATASET: cfap_analytics
+  
+
+permissions:
+  contents: 'read'
+  id-token: 'write'
 
 jobs:
+  preflight-secrets:
+    name: Preflight - verify GitHub secrets
+    runs-on: ubuntu-latest
+    outputs: {}
+    steps:
+      - name: Check required secrets are present
+        env:
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
+          WORKLOAD_IDENTITY_PROVIDER: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+          ARTIFACT_REGISTRY_REPO: ${{ secrets.ARTIFACT_REGISTRY_REPO }}
+        run: |
+          missing=0
+          if [ -z "$GCP_PROJECT" ]; then echo "Missing secret: GCP_PROJECT"; missing=1; fi
+          if [ -z "$WORKLOAD_IDENTITY_PROVIDER" ]; then echo "Missing secret: WORKLOAD_IDENTITY_PROVIDER"; missing=1; fi
+          if [ -z "$SERVICE_ACCOUNT_EMAIL" ]; then echo "Missing secret: SERVICE_ACCOUNT_EMAIL"; missing=1; fi
+          if [ -z "$ARTIFACT_REGISTRY_REPO" ]; then echo "Missing secret: ARTIFACT_REGISTRY_REPO"; missing=1; fi
+          # FIREBASE_TOKEN is optional
+          if [ $missing -eq 1 ]; then echo "One or more required secrets are missing - aborting."; exit 1; fi
+
   deploy-backend:
     runs-on: ubuntu-latest
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    needs: preflight-secrets
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -35,11 +65,17 @@ jobs:
       - name: Configure Docker for Artifact Registry
         run: gcloud auth configure-docker us-central1-docker.pkg.dev -q
 
-      - name: Build and push backend Docker image
+      - name: Ensure Pub/Sub topic & subscription exist
         env:
-          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-          ARTIFACT_REPO: ${{ secrets.ARTIFACT_REGISTRY_REPO }}
+          GCP_PROJECT: ${{ secrets.GCP_PROJECT }}
         run: |
+          gcloud pubsub topics create run-analysis-jobs --project=${GCP_PROJECT} || true
+          gcloud pubsub subscriptions create run-analysis-worker --project=${GCP_PROJECT} --topic=run-analysis-jobs || true
+
+      - name: Build and push backend Docker image
+        run: |
+          PROJECT_ID=${{ secrets.GCP_PROJECT }}
+          ARTIFACT_REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }}
           IMAGE_SHA=us-central1-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/cfap-backend:${GITHUB_SHA}
           docker build -t ${IMAGE_SHA} -f backend/Dockerfile backend
           docker push ${IMAGE_SHA}
@@ -51,11 +87,11 @@ jobs:
           fi
 
       - name: Deploy to Cloud Run
-        env:
-          PROJECT_ID: ${{ secrets.GCP_PROJECT }}
-          REGION: ${{ env.REGION }}
-          SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
         run: |
+          PROJECT_ID=${{ secrets.GCP_PROJECT }}
+          ARTIFACT_REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }}
+          REGION=${{ env.REGION }}
+          SERVICE_ACCOUNT=${{ secrets.SERVICE_ACCOUNT_EMAIL }}
           # choose service name by branch
           BRANCH=${{ github.ref_name }}
           if [ "${BRANCH}" = "main" ]; then
@@ -63,35 +99,45 @@ jobs:
           else
             SERVICE_NAME=cfap-backend-dev
           fi
-          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${{ secrets.ARTIFACT_REGISTRY_REPO }}/cfap-backend:${GITHUB_SHA}
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/cfap-backend:${GITHUB_SHA}
           gcloud run deploy ${SERVICE_NAME} \
             --image=${IMAGE} \
             --region=${REGION} \
             --platform=managed \
             --allow-unauthenticated \
-            --service-account=${SERVICE_ACCOUNT}
+            --service-account=${SERVICE_ACCOUNT} \
+            --set-env-vars GCP_PROJECT=${PROJECT_ID},RESULT_DATASET=${{ env.DATASET }},ANALYSIS_RUN_TOPIC=run-analysis-jobs
+      - name: Export backend URL as job output
+        id: export_backend_url
+        run: |
+          PROJECT_ID=${{ secrets.GCP_PROJECT }}
+          REGION=${{ env.REGION }}
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            SERVICE_NAME=cfap-backend-prod
+          else
+            SERVICE_NAME=cfap-backend-dev
+          fi
+          URL=$(gcloud run services describe ${SERVICE_NAME} --project=${PROJECT_ID} --region=${REGION} --format='value(status.url)')
+          if [ -z "$URL" ]; then
+            URL="http://localhost:8080"
+          fi
+          echo "BACKEND_URL=$URL" >> $GITHUB_OUTPUT
+
+    outputs:
+      backend_url: ${{ steps.export_backend_url.outputs.BACKEND_URL }}
 
   deploy-frontend:
     runs-on: ubuntu-latest
-    needs: deploy-backend
+    needs: [preflight-secrets, deploy-backend, build-frontend]
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Download built frontend artifact
+        uses: actions/download-artifact@v4
         with:
-          node-version: '18'
-
-      - name: Install and build frontend (if directory exists)
-        run: |
-          if [ -d frontend ]; then
-            cd frontend
-            npm ci
-            npm run build
-          else
-            echo "No frontend directory found, skipping frontend build"
-          fi
+          name: frontend-dist
+          path: frontend/dist
 
       - name: Deploy to Firebase Hosting
         if: ${{ secrets.FIREBASE_TOKEN != '' }}
@@ -106,13 +152,64 @@ jobs:
             echo "No frontend to deploy"
           fi
 
+  build-frontend:
+    name: Build frontend (create production artifact)
+    runs-on: ubuntu-latest
+    needs: [preflight-secrets, deploy-backend]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Write frontend production env (including backend URL)
+        env:
+          BACKEND_URL: ${{ needs.deploy-backend.outputs.backend_url }}
+        run: |
+          mkdir -p frontend
+          if [ -z "$BACKEND_URL" ]; then
+            echo "Warning: BACKEND_URL is empty; defaulting to http://localhost:8080"
+            BACKEND_URL="http://localhost:8080"
+          fi
+          printf '%s\n' "VITE_BACKEND_URL=${BACKEND_URL}" > frontend/.env.production
+          printf '%s\n' "VITE_FIREBASE_API_KEY=${{ secrets.VITE_FIREBASE_API_KEY }}" >> frontend/.env.production
+          printf '%s\n' "VITE_FIREBASE_AUTH_DOMAIN=${{ secrets.VITE_FIREBASE_AUTH_DOMAIN }}" >> frontend/.env.production
+          printf '%s\n' "VITE_FIREBASE_PROJECT_ID=${{ secrets.VITE_FIREBASE_PROJECT_ID }}" >> frontend/.env.production
+          printf '%s\n' "VITE_FIREBASE_STORAGE_BUCKET=${{ secrets.VITE_FIREBASE_STORAGE_BUCKET }}" >> frontend/.env.production
+          printf '%s\n' "VITE_FIREBASE_MESSAGING_SENDER_ID=${{ secrets.VITE_FIREBASE_MESSAGING_SENDER_ID }}" >> frontend/.env.production
+          printf '%s\n' "VITE_FIREBASE_APP_ID=${{ secrets.VITE_FIREBASE_APP_ID }}" >> frontend/.env.production
+          printf '%s\n' "VITE_FIREBASE_MEASUREMENT_ID=${{ secrets.VITE_FIREBASE_MEASUREMENT_ID }}" >> frontend/.env.production
+
+      - name: Build frontend
+        working-directory: frontend
+        run: |
+          if [ -d . ]; then
+            npm ci
+            npm run build
+          else
+            echo "No frontend directory found, skipping frontend build"
+          fi
+
+      - name: Upload frontend artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-dist
+          path: frontend/dist
+
   deploy-ingestion:
     name: Build & Deploy ingestion services
     runs-on: ubuntu-latest
-    needs: deploy-backend
+    needs: [preflight-secrets, deploy-backend]
     permissions:
       contents: 'read'
       id-token: 'write'
+    env:
+      PROJECT_ID: ${{ secrets.GCP_PROJECT }}
+      ARTIFACT_REPO: ${{ secrets.ARTIFACT_REGISTRY_REPO }}
+      SERVICE_ACCOUNT_EMAIL: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -147,14 +244,14 @@ jobs:
           REGION: ${{ env.REGION }}
           SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
         run: |
-          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${{ secrets.ARTIFACT_REGISTRY_REPO }}/ingestion-api:${GITHUB_SHA}
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/ingestion-api:${GITHUB_SHA}
           gcloud run deploy ingestion-api \
             --image ${IMAGE} \
             --region ${REGION} \
             --platform managed \
             --allow-unauthenticated \
             --service-account=${SERVICE_ACCOUNT} \
-            --set-env-vars PUBSUB_TOPIC=raw-events,GCP_PROJECT=${PROJECT_ID}
+            --set-env-vars PUBSUB_TOPIC=raw-events,GCP_PROJECT=${PROJECT_ID},RESULT_DATASET=${{ env.DATASET }}
 
       - name: Build and push ingestion-subscriber image
         env:
@@ -171,11 +268,159 @@ jobs:
           REGION: ${{ env.REGION }}
           SERVICE_ACCOUNT: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
         run: |
-          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${{ secrets.ARTIFACT_REGISTRY_REPO }}/ingestion-subscriber:${GITHUB_SHA}
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${ARTIFACT_REPO}/ingestion-subscriber:${GITHUB_SHA}
           gcloud run deploy ingestion-subscriber \
             --image ${IMAGE} \
             --region ${REGION} \
             --platform managed \
             --allow-unauthenticated \
             --service-account=${SERVICE_ACCOUNT} \
-            --set-env-vars TARGET_TABLE=${PROJECT_ID}:cfap_analytics.standard_events
+            --set-env-vars TARGET_TABLE=${PROJECT_ID}:${{ env.DATASET }}.standard_events,GCP_PROJECT=${PROJECT_ID}
+
+  deploy-control-plane:
+    name: Deploy control plane API
+    runs-on: ubuntu-latest
+    needs: [preflight-secrets, deploy-backend]
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      - uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          export_default_credentials: true
+      - name: Configure Docker
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev -q
+      - name: Build & push control plane image
+        run: |
+          PROJECT_ID=${{ secrets.GCP_PROJECT }}
+          REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }}
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${REPO}/control-plane:${GITHUB_SHA}
+          docker build -t ${IMAGE} -f control_plane_api/Dockerfile control_plane_api
+          docker push ${IMAGE}
+      - name: Deploy control plane
+        run: |
+          PROJECT_ID=${{ secrets.GCP_PROJECT }}
+          REGION=${{ env.REGION }}
+          REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }}
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${REPO}/control-plane:${GITHUB_SHA}
+          gcloud run deploy control-plane-api \
+            --image ${IMAGE} \
+            --region ${REGION} \
+            --platform managed \
+            --allow-unauthenticated \
+            --service-account=${{ secrets.SERVICE_ACCOUNT_EMAIL }} \
+            --set-env-vars GCP_PROJECT=${PROJECT_ID},ANALYSIS_RUN_TOPIC=run-analysis-jobs,RESULT_DATASET=${{ env.DATASET }}
+
+  deploy-reporting:
+    name: Deploy reporting API
+    runs-on: ubuntu-latest
+    needs: [preflight-secrets, deploy-backend]
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      - uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          export_default_credentials: true
+      - name: Configure Docker
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev -q
+      - name: Build & push reporting image
+        run: |
+          PROJECT_ID=${{ secrets.GCP_PROJECT }}
+          REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }}
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${REPO}/reporting-api:${GITHUB_SHA}
+          docker build -t ${IMAGE} -f backend/reporting_api/Dockerfile backend/reporting_api
+          docker push ${IMAGE}
+      - name: Deploy reporting API
+        run: |
+          PROJECT_ID=${{ secrets.GCP_PROJECT }}
+          REGION=${{ env.REGION }}
+          REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }}
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${REPO}/reporting-api:${GITHUB_SHA}
+          gcloud run deploy reporting-api \
+            --image ${IMAGE} \
+            --region ${REGION} \
+            --platform managed \
+            --allow-unauthenticated \
+            --service-account=${{ secrets.SERVICE_ACCOUNT_EMAIL }} \
+            --set-env-vars GCP_PROJECT=${PROJECT_ID},RESULT_DATASET=${{ env.DATASET }}
+
+  deploy-worker:
+    name: Deploy causal engine worker
+    runs-on: ubuntu-latest
+    needs: [preflight-secrets, deploy-backend]
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      - uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          export_default_credentials: true
+      - name: Configure Docker
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev -q
+      - name: Build & push worker image
+        run: |
+          PROJECT_ID=${{ secrets.GCP_PROJECT }}
+          REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }}
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${REPO}/causal-worker:${GITHUB_SHA}
+          docker build -t ${IMAGE} -f causal_engine/Dockerfile .
+          docker push ${IMAGE}
+      - name: Deploy worker (Cloud Run)
+        run: |
+          PROJECT_ID=${{ secrets.GCP_PROJECT }}
+          REGION=${{ env.REGION }}
+          REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }}
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${REPO}/causal-worker:${GITHUB_SHA}
+          gcloud run deploy causal-engine-worker \
+            --image ${IMAGE} \
+            --region ${REGION} \
+            --platform managed \
+            --allow-unauthenticated \
+            --max-instances=1 \
+            --service-account=${{ secrets.SERVICE_ACCOUNT_EMAIL }} \
+            --set-env-vars GCP_PROJECT=${PROJECT_ID},ANALYSIS_RUN_SUBSCRIPTION=run-analysis-worker,RESULT_DATASET=${{ env.DATASET }},ANALYSIS_RUN_TOPIC=run-analysis-jobs
+
+  deploy-retraining-job:
+    name: Build retraining job image
+    runs-on: ubuntu-latest
+    needs: [preflight-secrets]
+    permissions:
+      contents: 'read'
+      id-token: 'write'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: google-github-actions/auth@v1
+        with:
+          workload_identity_provider: ${{ secrets.WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.SERVICE_ACCOUNT_EMAIL }}
+      - uses: google-github-actions/setup-gcloud@v1
+        with:
+          project_id: ${{ secrets.GCP_PROJECT }}
+          export_default_credentials: true
+      - name: Configure Docker
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev -q
+      - name: Build & push retraining job image
+        run: |
+          PROJECT_ID=${{ secrets.GCP_PROJECT }}
+          REPO=${{ secrets.ARTIFACT_REGISTRY_REPO }}
+          IMAGE=us-central1-docker.pkg.dev/${PROJECT_ID}/${REPO}/retraining-job:${GITHUB_SHA}
+          docker build -t ${IMAGE} -f retraining_job/Dockerfile retraining_job
+          docker push ${IMAGE}

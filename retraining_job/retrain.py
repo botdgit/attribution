@@ -7,7 +7,7 @@ def main():
     # - load training data
     # - train a model (doubleml or similar)
     # - save artifacts to GCS
-    print("Starting retraining job (placeholder)")
+    print("Starting retraining job")
     # Simulate work
     for i in range(3):
         print(f"training... step {i+1}")
